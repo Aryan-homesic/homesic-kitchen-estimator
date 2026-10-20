@@ -83,17 +83,70 @@ card shows the saving from the 2 ft gap.
 Change `DEFAULTS` for the preselected units and finishes. No tax line is added; the quote is an
 indicative price.
 
-## Data collection (localStorage)
+## Collecting leads (no server required)
 
-- `homesic.v1` — in-progress state, so a refresh resumes.
-- `homesic.leads.v1` — submitted leads, newest first, capped at 100. Each record has the reference,
-  date, name, phone, city, plan metadata (name/type/size), total, priced line items, selections and
-  the cost breakdown.
+**Local storage is only the device in front of you.** `homesic.leads.v1` holds submitted leads in
+that browser, which is useful for a showroom tablet or testing, but a client submitting from their
+phone writes to *their* browser — you will not see it. For real client submissions, point the form
+at a free form service. The site already POSTs the full record and shows a sent/failed status on the
+quote.
 
-Open **`?leads=1`** for the saved leads table with a Clear all action. It is not linked from the
-customer UI; bookmark the URL. The plan's binary is not stored — only its name, type and size —
-and the preview works for the current session. Set `CONFIG.leadEndpoint` to POST the record to a
-server; set `CONFIG.whatsapp` to the studio number for direct WhatsApp sharing.
+### 1. Free email notification — Web3Forms (recommended)
+
+1. Go to **web3forms.com**, enter the studio email and copy the access key (no account needed).
+2. In `index.html`, set:
+
+```js
+const CONFIG = {
+  whatsapp: '919845012345',
+  leadEndpoint: 'https://api.web3forms.com/submit',
+  leadAccessKey: 'YOUR-WEB3FORMS-ACCESS-KEY',
+  leadCompany: 'Homesic',
+  calendly: '' // optional, see below
+};
+```
+
+3. Submit a test quote. The quote should say **Request sent to the studio**, and the lead should
+   arrive by email. Free tier: 250 submissions/month. Enable domain restriction in the dashboard
+   so the key only works from the deployed site.
+
+**Formspree** is an alternative: create a form at formspree.io, copy the endpoint
+(`https://formspree.io/f/xxxx`), paste it as `leadEndpoint`, and leave `leadAccessKey` empty. Free
+tier: 50 submissions/month.
+
+**FormSubmit** works with just an email and no account:
+`leadEndpoint = 'https://formsubmit.co/ajax/you@studio.com'`. The first submission sends an
+activation email; confirm it before leads are delivered.
+
+### 2. WhatsApp / Telegram / Google Sheets
+
+Point `leadEndpoint` at a **Make**, **n8n** or **Zapier** webhook instead. The automation can append
+the lead to a Google Sheet and send a Telegram, WhatsApp, Slack or email notification. The payload
+includes the reference, date, name, phone, city, plan metadata, total, line items, selections and
+breakdown, so the automation can map any field. Free tiers are enough for a small studio.
+
+### 3. Calendly-style site-visit booking
+
+Set `CONFIG.calendly` to the event URL, e.g. `https://calendly.com/your-studio/site-visit`. A
+**Book a site visit** button appears on the quote with the client's name prefilled. Calendly sends
+the confirmation/notification to both sides. This complements the form endpoint; the quote data
+still goes through Web3Forms/Formspree.
+
+### The local fallback
+
+`homesic.v1` keeps the in-progress calculator state. `homesic.leads.v1` keeps up to 100 submitted
+leads (reference, date, name, phone, city, plan metadata, total, lines, selections, breakdown).
+Open **`?leads=1`** on the same browser for the local table and Clear all. The plan binary is not
+stored or sent — only its name, type and size; upload it to Cloudinary/Supabase Storage and send
+the URL if you need the actual file.
+
+The quote shows one of: **Sending**, **Request sent**, **Could not reach the studio — saved on this
+device**, or **Saved on this device**. A failed send still keeps the lead locally, and the customer
+can use WhatsApp/PDF.
+
+Security: endpoints and Web3Forms/Formspree keys are public by design; restrict them by domain and
+enable the provider's spam protection. Never put a private API key or SMTP password in the HTML.
+If you run your own Cloudflare Worker/Netlify function, validate and rate-limit server-side.
 
 ## Images
 
@@ -114,7 +167,8 @@ page.
 ## Known limits
 
 - Rates are placeholders until the studio's rate values are entered.
-- Plans are not persisted, and leads live only in this browser.
+- Plans are not persisted, and leads live only in this browser unless `CONFIG.leadEndpoint` is
+  configured with a form service or automation webhook.
 - No tax/GST calculation; add it deliberately if the quote must be a tax document.
 
 ## Deploy

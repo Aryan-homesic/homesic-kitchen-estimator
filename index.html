@@ -285,6 +285,10 @@ body.doc #stage{overflow-y:auto;padding-bottom:40px}
 .terms i{font-style:normal;font-weight:600;font-size:13.5px;font-variant-numeric:tabular-nums;margin-top:4px}
 .pnote{font-size:12px;color:#7A746B;margin-top:16px}
 .doc-foot{text-align:center;color:var(--muted);font-size:13.5px;margin:22px 0 8px}
+.delivery{font-size:12.5px;color:var(--muted);margin-top:5px}
+.delivery.sending{color:var(--accent-d)}
+.delivery.sent{color:var(--ok)}
+.delivery.failed{color:var(--warn)}
 .linkbtn{border:0;background:none;color:var(--accent-d);text-decoration:underline;padding:0;font-size:13.5px}
 @media print{
   html,body{height:auto;overflow:visible;background:#fff!important}
@@ -402,6 +406,9 @@ body.doc #stage{overflow-y:auto;padding-bottom:40px}
   </div>
 </nav>
 
+<form id="wfForm" method="POST" target="wfTarget" style="display:none"></form>
+<iframe id="wfTarget" name="wfTarget" title="Form delivery" aria-hidden="true" style="position:absolute;width:0;height:0;border:0;visibility:hidden"></iframe>
+
 <script>
 /* ============================================================
    RATE CARD — placeholder values for the final spec.
@@ -411,7 +418,15 @@ body.doc #stage{overflow-y:auto;padding-bottom:40px}
    ============================================================ */
 const CONFIG = {
   whatsapp: '',        // studio WhatsApp number, digits with country code
-  leadEndpoint: ''     // optional POST URL for leads
+  // Free form services: paste one endpoint here (no backend needed).
+  // Formspree:  https://formspree.io/f/your-form-id
+  // Web3Forms:  https://api.web3forms.com/submit  (+ access key below)
+  leadEndpoint: 'https://api.web3forms.com/submit',
+  leadAccessKey: '5985dd92-c385-4ef2-873c-5f0766320faf',   // Web3Forms access key
+  leadCompany: 'Homesic',     // shown on the quote / used as email subject by some services
+  // Calendly-style site-visit link; empty hides the button.
+  // e.g. https://calendly.com/your-studio/site-visit
+  calendly: ''
 };
 const RATES = {
   board:      { bwp: 1250, bwr: 1150, hdhmr: 800 },          // per sq ft carcass
@@ -554,7 +569,7 @@ const fresh = () => ({
   hingeBrand:'', hingeFunction:'', lighting:'',
   acc: { magic:0, wicker:0, cutlery:0, bottle:0 },
   skip: { counter:false, backsplash:false, sink:false, faucet:false, lighting:false },
-  name:'', phone:'', city:'', plan:null, lead:null
+  name:'', phone:'', email:'', city:'', plan:null, lead:null
 });
 let state = fresh();
 try {
@@ -564,6 +579,8 @@ try {
 state.units = Object.assign({ ...DEFAULTS.units }, state.units || {});
 state.acc = Object.assign({ magic:0, wicker:0, cutlery:0, bottle:0 }, state.acc || {});
 state.skip = Object.assign({ counter:false, backsplash:false, sink:false, faucet:false, lighting:false }, state.skip || {});
+if(typeof state.email !== 'string') state.email = '';
+if(state.lead && state.lead.delivery === 'sending') state.lead.delivery = 'local';
 if(!(Number(state.h) > 0)) state.h = '9';
 state.planError = '';
 let planUrl = '';
@@ -979,6 +996,7 @@ function viewDetails(){
     <form id="lead" novalidate>
       <div class="field"><label for="fn">Name</label><input id="fn" name="name" autocomplete="name" value="${esc(state.name)}"><p class="err" id="en"></p></div>
       <div class="field"><label for="fp">Mobile number</label><input id="fp" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="${esc(state.phone)}"><p class="err" id="ep"></p></div>
+      <div class="field"><label for="fe">Email <span class="opt-badge">optional</span></label><input id="fe" name="email" type="email" inputmode="email" autocomplete="email" value="${esc(state.email)}"><p class="err" id="ee"></p></div>
       <div class="field"><label for="fc">City</label><input id="fc" name="city" autocomplete="address-level2" value="${esc(state.city)}"><p class="err" id="ec"></p></div>
       <div class="field">
         <label>Floor plan <span class="opt-badge">optional</span></label>
@@ -993,6 +1011,9 @@ function viewDetails(){
 }
 function viewQuote(){
   const p = price();
+  const cal = CONFIG.calendly
+    ? CONFIG.calendly + (CONFIG.calendly.includes('?') ? '&' : '?') + 'name=' + encodeURIComponent(state.name)
+    : '';
   const skipped = [
     state.skip.counter && 'Countertop',
     state.skip.backsplash && 'Backsplash',
@@ -1005,11 +1026,14 @@ function viewQuote(){
   const date = new Date(state.lead.at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
   return `<div class="qdoc">
     <div class="doc-top">
-      <div><h1 tabindex="-1">Your kitchen quote</h1></div>
+      <div><h1 tabindex="-1">Your kitchen quote</h1>
+        <p class="delivery ${state.lead.delivery || 'local'}">${state.lead.delivery === 'sent' ? 'Request sent to the studio.' : state.lead.delivery === 'sending' ? 'Sending your request to the studio…' : state.lead.delivery === 'failed' ? 'Could not reach the studio — your request is saved on this device.' : 'Saved on this device.'}</p>
+      </div>
       <div class="doc-acts">
         <button class="btn" type="button" data-act="wa">Share on WhatsApp</button>
         <button class="btn line" type="button" data-act="print">Save PDF</button>
         <button class="btn line" type="button" data-act="edit">Edit choices</button>
+        ${cal ? `<a class="btn" href="${esc(cal)}" target="_blank" rel="noopener">Book a site visit →</a>` : ''}
       </div>
     </div>
     <article class="paper">
@@ -1033,7 +1057,7 @@ function viewQuote(){
       </div>
       <p class="pnote">10-year Homesic service warranty · brand warranty on materials. Final quote after site measurement and design.${state.plan ? ' Floor plan referenced: ' + esc(state.plan.name) + '.' : ''}${skipped.length ? ' Not included: ' + skipped.join(', ') + '.' : ''}</p>
     </article>
-    <p class="doc-foot">${CONFIG.leadEndpoint ? 'Sent to the studio.' : 'Saved on this device.'} Our designer will call you to book your free site visit. · <button class="linkbtn" type="button" data-act="reset">Start a new estimate</button></p>
+    <p class="doc-foot">${state.lead.delivery === 'failed' ? 'Send it on WhatsApp if it is urgent.' : cal ? 'Book a site visit above, or our designer will call you.' : 'Our designer will call you to book your free site visit.'} · <button class="linkbtn" type="button" data-act="reset">Start a new estimate</button></p>
   </div>`;
 }
 function viewLeads(){
@@ -1251,7 +1275,7 @@ stage.addEventListener('click', e => {
 stage.addEventListener('input', e => {
   const k = e.target.dataset.dim;
   if(k){ state[k] = e.target.value; save(); updateSize(); updateBar(); }
-  if(['name','phone','city'].includes(e.target.name)){ state[e.target.name] = e.target.value; save(); }
+  if(['name','phone','email','city'].includes(e.target.name)){ state[e.target.name] = e.target.value; save(); }
 });
 stage.addEventListener('keydown', e => {
   if(e.key === 'Enter' && e.target.dataset.dim && sizeOk()) go(state.step + 1);
@@ -1277,10 +1301,13 @@ stage.addEventListener('submit', e => {
   const digits = state.phone.replace(/\D/g, '');
   const okPhone = digits.length >= 10 && digits.length <= 13;
   const okCity = state.city.trim().length > 1;
+  const email = state.email.trim();
+  const okEmail = !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   $('en').textContent = okName ? '' : 'Please add your name.';
   $('ep').textContent = okPhone ? '' : 'Enter a 10-digit mobile number.';
+  $('ee').textContent = okEmail ? '' : 'Enter a valid email or leave it blank.';
   $('ec').textContent = okCity ? '' : 'Please add your city.';
-  if(!okName || !okPhone || !okCity) return;
+  if(!okName || !okPhone || !okCity || !okEmail) return;
 
   submitting = true;
   setTimeout(() => { submitting = false; }, 1200);
@@ -1288,7 +1315,7 @@ stage.addEventListener('submit', e => {
   const lead = { id: 'HS-' + Date.now().toString(36).toUpperCase(), at: new Date().toISOString() };
   const record = {
     id: lead.id, at: lead.at,
-    name: state.name.trim(), phone: state.phone.trim(), city: state.city.trim(),
+    name: state.name.trim(), phone: state.phone.trim(), email: email, city: state.city.trim(),
     plan: state.plan || null,
     total: p.total,
     lines: p.lines,
@@ -1302,11 +1329,92 @@ stage.addEventListener('submit', e => {
     breakdown: p.breakdown
   };
   saveLead(record);
+  lead.delivery = CONFIG.leadEndpoint ? 'sending' : 'local';
+  state.lead = lead;
+  transition(() => { state.step = LAST; });
   if(CONFIG.leadEndpoint){
-    fetch(CONFIG.leadEndpoint, { method:'POST', headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify(record) }).catch(() => {});
+    const message = [
+      'Kitchen quote ' + lead.id,
+      'Name: ' + record.name,
+      'Phone: ' + record.phone,
+      record.email ? 'Email: ' + record.email : '',
+      'City: ' + record.city,
+      'Total: ' + inr(record.total) + ' (including design)',
+      '',
+      ...p.lines.map(l => `${l.d} — ${l.q}${l.u ? ' ' + l.u : ''} — ${inr(l.a)}`)
+    ].filter(Boolean).join('\n');
+    const payload = { ...record, access_key: CONFIG.leadAccessKey || undefined,
+      subject: 'New kitchen lead · ' + lead.id,
+      from_name: CONFIG.leadCompany || 'Homesic website',
+      message };
+    if(!record.email) delete payload.email;
+    const formPost = /web3forms\.com/i.test(CONFIG.leadEndpoint);
+    if(formPost){
+      // Web3Forms does not send CORS headers, so use its normal HTML form POST into a
+      // hidden iframe. The page stays on the quote and the studio gets the email.
+      const wf = $('wfForm');
+      wf.action = CONFIG.leadEndpoint;
+      wf.innerHTML = '';
+      const add = (k, v) => {
+        if(v === undefined || v === null || v === '') return;
+        const i = document.createElement('input');
+        i.type = 'hidden'; i.name = k; i.value = typeof v === 'string' ? v : JSON.stringify(v);
+        wf.appendChild(i);
+      };
+      add('access_key', CONFIG.leadAccessKey);
+      add('subject', payload.subject);
+      add('from_name', payload.from_name);
+      add('name', record.name);
+      add('email', record.email);
+      add('phone', record.phone);
+      add('city', record.city);
+      add('quote_id', record.id);
+      add('total', record.total);
+      add('plan', record.plan);
+      add('selections', record.selections);
+      add('breakdown', record.breakdown);
+      add('message', payload.message);
+      let marked = false;
+      const mark = () => {
+        if(marked) return;
+        marked = true;
+        if(state.lead && state.lead.id === lead.id && state.lead.delivery !== 'sent'){
+          state.lead.delivery = 'sent'; save();
+          if(state.step === LAST) draw();
+        }
+      };
+      const frame = $('wfTarget');
+      frame.onload = () => setTimeout(mark, 250);
+      setTimeout(mark, 2500);
+      wf.submit();
+    } else {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 12000);
+      fetch(CONFIG.leadEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal
+      })
+        .then(r => { clearTimeout(timer); if(!r.ok) throw new Error('HTTP ' + r.status); return r.json().catch(() => ({})); })
+        .then(j => {
+          if(j && j.success === false) throw new Error('rejected');
+          if(state.lead && state.lead.id === lead.id){
+            state.lead.delivery = 'sent'; save();
+            if(state.step === LAST) draw();
+          }
+        })
+        .catch(() => {
+          clearTimeout(timer);
+          if(state.lead && state.lead.id === lead.id){
+            state.lead.delivery = 'failed'; save();
+            if(state.step === LAST) draw();
+          }
+        });
+    }
+  } else {
+    save();
   }
-  transition(() => { state.lead = lead; state.step = LAST; });
 });
 $('back').addEventListener('click', () => go(state.step - 1));
 const dock = $('dock');
