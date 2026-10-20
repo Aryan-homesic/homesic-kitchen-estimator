@@ -13,8 +13,14 @@ sink type → faucet → hinge brand → hinge function → lighting → accesso
 
 One topic per screen. Single-choice screens advance on tap. Units and Accessories are
 multi-select, so their **Continue / Skip** action sits in the title row on the right; Size has
-**See my price** in the same place. There is no eyebrow label above any title. Hover or
-keyboard-focus a card to see the run, rate and estimated line cost for the current kitchen.
+**See my price** in the same place. Multi-select changes apply in place — no page transition.
+The Units screen shows Base, Wall, Loft, Tall and Fridge as separate cards with a price, and the
+Accessories cards carry a count stepper. There is no eyebrow label above any title. Hover or
+keyboard-focus a single-choice card to see the run, rate and estimated line cost.
+
+Countertop, Backsplash, Sink material, Sink type, Faucet and Lighting have a **Skip** action in the
+title row. Skipped items are left out of the price and listed as “Not included” on the quote. The
+Board screen has a collapsed **Compare boards** table below the cards.
 
 All quiz, size and quote screens sit on the cover photo; the contact gate (and the local leads
 view) stay on the light background. The details gate asks for name, mobile and city, and accepts
@@ -58,7 +64,8 @@ at zero.
 ## Rates are placeholders
 
 The formulas are complete; **the numbers in `RATES` are samples** and must be replaced with the
-studio's confirmed values before quoting:
+studio's confirmed values before quoting. Unit-card prices include the 5% design share; the Fridge
+card shows the saving from the 2 ft gap.
 
 - Board (per sq ft carcass): BWP 1250, BWR 1150, HDHMR 800.
 - Finish (per sq ft): acrylic 800, laminate 650, spray paint 1800, texture 1700, solid wood 1800,
@@ -96,11 +103,13 @@ use the `assets/card-*.jpg` crops; all other images are the studio's own.
 
 ## Verified
 
-Headless Chrome run of the full 18-screen flow: 53 functional checks passed with no console errors.
-Formula checks confirm the 16 ft base / 16.5 ft wall runs, 114 sq ft carcass, 26 doors, 52 hinges,
-CP 91,200, FP 74,100, CTP 22,400, BSP 9,000, LP 9,900, the fridge deduction on backsplash and
-lighting (loft unchanged), design at 5%, and a one-page A4 quote. Mobile at 390×844 has no stage
-overflow on the new screens; the title-row actions and quantity steppers work.
+Headless Chrome runs cover the 18-screen calculator and the latest UI pass (53 + 38 checks) with no
+console errors. Formula checks confirm the 16 ft base / 16.5 ft wall runs, 114 sq ft carcass, 26
+doors, 52 hinges, CP 91,200, FP 74,100, CTP 22,400, BSP 9,000, LP 9,900, the fridge deduction on
+backsplash and lighting (loft unchanged), design at 5%, and a one-page A4 quote. The skip paths
+produce zeroed lines and the “Not included” note. Mobile at 390×844 fits the Units, Board (table
+scrolls when open), Counter and Accessories screens; multi-select selections do not re-animate the
+page.
 
 ## Known limits
 
