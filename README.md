@@ -116,3 +116,15 @@ page.
 - Rates are placeholders until the studio's rate values are entered.
 - Plans are not persisted, and leads live only in this browser.
 - No tax/GST calculation; add it deliberately if the quote must be a tax document.
+
+## Deploy
+
+Source lives in the **private** repo `akm-akm/modular-kitchen-estimator-site`. GitHub Pages needs a
+public repo on the free plan, so the site is published from `akm-akm/homesic-kitchen-estimator`:
+
+```bash
+./deploy.sh     # rsyncs index.html + assets into .deploy/ and pushes it
+```
+
+Live: https://akm-akm.github.io/homesic-kitchen-estimator/ (rebuilds ~1 min after each push).
+`.deploy/` is a separate clone and is gitignored here.
