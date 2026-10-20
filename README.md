@@ -128,3 +128,14 @@ public repo on the free plan, so the site is published from `akm-akm/homesic-kit
 
 Live: https://akm-akm.github.io/homesic-kitchen-estimator/ (rebuilds ~1 min after each push).
 `.deploy/` is a separate clone and is gitignored here.
+
+Publishing is automatic: `.githooks/pre-push` runs `deploy.sh` before every `git push` from this
+machine, so a normal push updates the live site. Enabled via `git config core.hooksPath .githooks`
+(already set for this clone).
+
+GitHub Actions is not usable on this account right now: every workflow, including a one-line
+`echo`, ends in `startup_failure` with zero jobs, which points at account-level billing or Actions
+verification rather than the workflow itself. `.github/workflows/publish-pages.yml.disabled` is a
+ready-made mirror for when Actions works again — rename it to `.yml` and it publishes on every push
+using the `PAGES_DEPLOY_KEY` secret (an ed25519 deploy key with write access to the Pages repo
+only).
