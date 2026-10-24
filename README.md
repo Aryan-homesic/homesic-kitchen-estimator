@@ -8,19 +8,32 @@ python3 -m http.server 8777   # open http://127.0.0.1:8777
 
 ## Flow
 
-Start → shape → units → board → finish → handles → worktop → backsplash → sink material →
-sink type → faucet → hinge brand → hinge function → lighting → accessories → size → details → quote.
+Start → size → shape → units → board & finish → handles → worktop & backsplash → sink material →
+sink type → faucet → hinge brand → hinge function → lighting → accessories → details → quote.
+
+Size comes first so every run, unit price and the dock estimate are based on the real room from the
+second screen on.
+
+Board and finish share one screen: a three-way **Board** switch (BWP · HDHMR · BWR, in that order)
+with board thumbnails, a **Finish** grid of six square, uncropped photo tiles whose prices update with
+the board, an optional **Glass profile shutters** add-on for wall units only, and the **Compare
+boards** table open below it. One tap on a finish sets the board+finish rate; the page stays put and a
+single **Continue** enables once both are chosen.
+
+Every choice screen is photo-led: each card reserves a photo area (`--rh` desktop, `--rhm` phone in
+`STEPS`), so swapping an image never reflows the grid. Sizes are tuned so a 375 × 667 phone shows a
+whole screen at once; the stage scrolls only if a longer screen still overflows, and a missing image
+file collapses to the card's neutral panel rather than a broken icon.
 
 One topic per screen. Single-choice screens advance on tap. Units and Accessories are
 multi-select, so their **Continue / Skip** action sits in the title row on the right; Size has
-**See my price** in the same place. Multi-select changes apply in place — no page transition.
+**Continue** in the same place. Multi-select changes apply in place — no page transition.
 The Units screen shows Base, Wall, Loft, Tall and Fridge as separate cards with a price, and the
 Accessories cards carry a count stepper. There is no eyebrow label above any title. Hover or
 keyboard-focus a single-choice card to see the run, rate and estimated line cost.
 
 Countertop, Backsplash, Sink material, Sink type, Faucet and Lighting have a **Skip** action in the
-title row. Skipped items are left out of the price and listed as “Not included” on the quote. The
-Board screen has a collapsed **Compare boards** table below the cards.
+title row. Skipped items are left out of the price and listed as “Not included” on the quote.
 
 All quiz, size and quote screens sit on the cover photo; the contact gate (and the local leads
 view) stay on the light background. The details gate asks for name, mobile and city, and accepts
@@ -46,8 +59,8 @@ Tall carcass  = 4 sq ft (fixed, no doors)
 Base / wall / loft doors = ROUNDUP(run ÷ 2)
 Handles = total doors, hinges = handles × 2
 
-CP  = total carcass × board rate
-FP  = total carcass × finish rate
+CP  = total carcass × board+finish rate (one cell of the woodwork matrix)
+GL  = wall carcass × glass rate (only when the glass add-on is on and wall units are selected)
 HP  = handles × handle rate
 CTP = (base run × 2) × countertop rate
 BSP = (gross base length × 2) × backsplash rate
@@ -55,30 +68,44 @@ SP  = sink material rate × sink type multiplier + faucet rate
 HiP = hinges × hinge rate (brand × function)
 LP  = gross base length × lighting rate
 AP  = Σ accessory count × accessory rate
-Grand total = CP + FP + HP + CTP + BSP + SP + HiP + LP + AP, plus 5% design charge
+Grand total = CP + GL + HP + CTP + BSP + SP + HiP + LP + AP, plus 5% design charge
 ```
 
-Sink multipliers: single 1, double 2, single with tray 1.35. Faucet count 1. All runs are clamped
-at zero.
+Sink multipliers: single 1, double 2, single with tray 1.35, double with drainboard 2.4. Faucet
+count 1. All runs are clamped at zero.
 
-## Rates are placeholders
+## Rates
 
-The formulas are complete; **the numbers in `RATES` are samples** and must be replaced with the
-studio's confirmed values before quoting. Unit-card prices include the 5% design share; the Fridge
-card shows the saving from the 2 ft gap.
+The woodwork rate card follows the studio's catalogue (Oct 2026); board order is BWP, HDHMR, BWR.
+The other rates are still samples.
 
-- Board (per sq ft carcass): BWP 1250, BWR 1150, HDHMR 800.
-- Finish (per sq ft): acrylic 800, laminate 650, spray paint 1800, texture 1700, solid wood 1800,
-  jute rattan 2200, glass 1300.
-- Handles (each): profile 1200, L-grip 900, groove 1500, knob 600.
-- Countertop (per sq ft): granite 700, quartz 1100, full body 500.
-- Backsplash (per sq ft): ceramic 250, acrylic 450, mosaic 380.
-- Sink material (per sink): stainless 5500, granite 9000, quartz 8000.
-- Faucet (each): lever 2800, pull-out 5600, filter 7200.
-- Hinges (per hinge, brand × function): Hettich 450/500/550, Innotech 350/400/450,
-  Godrej 300/340/390 for standard/soft-close/push-to-open.
-- Lighting (per running ft): internal 550, internal + external + outlets 1200, complete 1900.
-- Accessories (each): magic corner 14500, wicker 3800, cutlery 2900, bottle 3000.
+- Woodwork, per sq ft of carcass, board + finish, from the catalogue:
+
+  | Board | Laminate | Acrylic | Membrane | PU | Veneer | Rattan |
+  |---|---|---|---|---|---|---|
+  | HDHMR | 1450 | 1600 | 2500 | 2600 | 2600 | 3000 |
+  | BWR ply | 1800 | 2000 | 2700 | 2900 | 2900 | 3200 |
+  | BWP ply | 1900 | 2100 | 2800 | 2800 | 3200 | 3200 |
+
+- Glass profile with 5.5 mm shutter: 2100 / sq ft, **add-on for wall units only** — it is charged on
+  the wall carcass area and sits on top of the board+finish rate, not instead of it. Disabled when
+  wall units are off.
+- Handles (each): profile 1350, bar 950, groove 1600, knob 650; photos in `assets/handles/`.
+- Countertop (per sq ft): granite 850, quartz 1250, full body 650, marble 1150.
+- Backsplash (per sq ft): ceramic 320, acrylic 520, mosaic 430.
+- Sink material (per sink): stainless 6200, granite 10500, quartz 9200.
+- Faucet (each): lever 3100, pull-out 6200, filter 8200, wall-mounted 4200.
+- Hinges (per hinge, brand × function): Hettich 520/580/640, Innotech 390/450/510,
+  Godrej 320/370/420 for standard/soft-close/push-to-open.
+- Lighting (per running ft): internal 650, internal + external + outlets 1350, complete 2200.
+- Accessories (each): magic corner 16000, wicker 4200, cutlery 3200, bottle 3400.
+
+Glass is an add-on over the woodwork rate, priced on the wall carcass area (33 sq ft for the 10 × 8
+default, so ₹69,300 before the design share). Everything else is unchanged.
+
+New cards (marble countertop, wall-mounted faucet, double-with-drainboard sink) reuse the closest
+existing photo — swap in real shots when the studio has them. The four-card screens use a 2×2 grid
+(`c:2, rh:260` in `STEPS`).
 
 Change `DEFAULTS` for the preselected units and finishes. No tax line is added; the quote is an
 indicative price.
@@ -154,15 +181,37 @@ If you run your own Cloudflare Worker/Netlify function, validate and rate-limit 
 photo `photo-1622372738946-62e02505feb3` (Unsplash License). The finish, counter and two sink cards
 use the `assets/card-*.jpg` crops; all other images are the studio's own.
 
+Card images are used as-is — no grading or re-encoding step. Replace any of them by dropping a file
+with the same name into `assets/`.
+
+The six shutter finishes use the studio's own shots in `assets/finishes/` (`laminate.jpg`,
+`acrylic.jpg`, `membrane.jpg`, `pu.jpg`, `veneer.jpg`, `rattan.jpg`). They appear as square,
+uncropped tiles on the Build screen (3 across on a phone, 6 on desktop), and the ⤢ button on any
+card photo opens it full size in a lightbox.
+
+The Shape screen uses the studio's 1:1 plan images in `assets/shape/` (`straight.jpg`, `parallel.jpg`,
+`lshape.jpg`, `ushape.jpg`), shown square with a lightbox to inspect the plan full size.
+
+The Storage screen uses `assets/storage/hero.jpg` (the annotated all-units layout, shown at its own
+aspect ratio) as a page banner, and `assets/storage/unit-*.jpg` — the five supplied section cards
+(base, wall, loft, tall, fridge), each shown whole and uncropped, one per row — as the unit choices.
+
 ## Verified
 
 Headless Chrome runs cover the 18-screen calculator and the latest UI pass (53 + 38 checks) with no
 console errors. Formula checks confirm the 16 ft base / 16.5 ft wall runs, 114 sq ft carcass, 26
-doors, 52 hinges, CP 91,200, FP 74,100, CTP 22,400, BSP 9,000, LP 9,900, the fridge deduction on
-backsplash and lighting (loft unchanged), design at 5%, and a one-page A4 quote. The skip paths
-produce zeroed lines and the “Not included” note. Mobile at 390×844 fits the Units, Board (table
-scrolls when open), Counter and Accessories screens; multi-select selections do not re-animate the
-page.
+doors, 52 hinges, design at 5%, and a one-page A4 quote. The skip paths produce zeroed lines and the
+“Not included” note. Mobile at 390×844 fits the Units, Board (table scrolls when open), Counter and
+Accessories screens; multi-select selections do not re-animate the page.
+
+Re-checked after the local revision (catalogue rates, size first, merged board & finish screen) in
+Node against the extracted script: same runs, carcass, door and hinge counts, woodwork line 114 sq ft
+× ₹1,450 = ₹1,65,300, a 10 × 8 L-shape default quoting ₹2,97,696, glass add-on 33 sq ft × ₹2,100 =
+₹69,300 (₹72,765 with the design share), zero glass when wall units are off, and board order BWP →
+HDHMR → BWR in both the switch and the compare table. Across all 12 choice screens: one photo card
+per option, every referenced image present in `assets/`. Browser UI checks were not re-run, so the
+“no scroll on a phone” layout is by construction (compact rows, no horizontal scroll) rather than
+screenshot-verified.
 
 ## Known limits
 
