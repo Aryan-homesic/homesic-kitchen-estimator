@@ -64,8 +64,7 @@ merged) → lighting → accessories → details → quote.
 
 ## Known follow-ups
 
-- Payment terms are 10 / 50 / 45 / 5 = 110%; needs a decision (10 / 45 / 40 / 5
-  or similar).
+- Payment terms are 10 / 40 / 45 / 5 — sums to 100%, confirmed.
 - `CONFIG.leadEndpoint` still points at Web3Forms; swap for a studio address.
 - Photos are placeholders where the supplier set has no shot (noted per option).
 
