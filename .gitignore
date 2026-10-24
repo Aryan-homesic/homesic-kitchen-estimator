@@ -1,0 +1,18 @@
+# local
+.shots/
+tools/shots/
+*.log
+server.pid
+
+# screenshots / scratch
+tools/*.png
+tools/.shots/
+
+# os
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# chrome profiles + scratch from the screenshot helpers
+tools/prof*/
+tools/pitch/
