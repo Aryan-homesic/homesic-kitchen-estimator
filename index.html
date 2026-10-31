@@ -1207,6 +1207,28 @@ html body .photo-view .pv-close{position:absolute;top:calc(14px + env(safe-area-
   .mc:not(.open){height:64px}
 }
 
+
+/* ---------- meeting card: calendar tile on desktop, bar on phones ---------- */
+.qc-actions{margin-left:auto}
+.qc-book{flex:none;display:flex;align-items:flex-start;justify-content:flex-end;width:306px}
+@media (max-width:900px){ .qc-book{width:100%} }
+.mc-ico{flex:none;width:22px;height:22px;display:grid;place-items:center;color:var(--accent-d)}
+.mc-ico svg{width:20px;height:20px}
+
+/* desktop: square tile that unfolds leftwards */
+@media (min-width:901px){
+  .mc{transition:width .45s cubic-bezier(.25,.8,.35,1), box-shadow .25s ease, border-color .25s ease}
+  .mc:not(.open){width:104px;height:103px;align-items:center;justify-content:center;cursor:pointer}
+  .mc:not(.open) .mc-top{flex-direction:column;justify-content:center;gap:6px;padding:10px 8px}
+  .mc:not(.open) .mc-head{display:none}
+  .mc:not(.open) .mc-chev{margin:0}
+  .mc.open{width:306px}
+}
+@media (max-width:900px){
+  .mc:not(.open){width:100%;height:64px}
+  .mc:not(.open) .mc-top{flex-direction:row;justify-content:flex-start}
+}
+
 </style>
 </head>
 <body>
@@ -2314,7 +2336,16 @@ function meetingCard(){
 
   const open = m.open === true;
   return `<div class="mc${open ? ' open' : ''}" id="meetCard" data-mode="${m.mode}">
-    <button class="mc-top" type="button" data-act="meet-toggle" aria-expanded="${open}" aria-controls="mcBody">
+    <button class="mc-top" type="button" data-act="meet-toggle" aria-expanded="${open}" aria-controls="mcBody" aria-label="Book a designer meeting">
+      <span class="mc-ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.5" y="5.5" width="17" height="15" rx="3"/>
+          <path d="M3.5 10h17M8 3.5v4M16 3.5v4"/>
+          <circle cx="9" cy="14" r="1.1" fill="currentColor" stroke="none"/>
+          <circle cx="12.5" cy="14" r="1.1" fill="currentColor" stroke="none"/>
+          <circle cx="16" cy="14" r="1.1" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
       <span class="mc-head">
         <span class="mc-title">Meet your designer</span>
         <span class="mc-sub">${m.confirmed && m.date ? dayLabel(m.date) + ' · ' + m.time : 'Virtual or at the centre'}</span>
@@ -2370,11 +2401,11 @@ function quoteCard(p){
         <h1 id="qTitle" tabindex="-1">Your kitchen, priced</h1>
         <p class="qc-sub">All-inclusive — material, labour, hardware, transport and 5% design, with a 10-year service warranty.</p>
       </div>
-      <div class="qc-book">${meetingCard()}</div>
       <div class="qc-actions">
         <div class="qc-total"><b>${inr(p.total)}</b><span>all-inclusive</span></div>
         <button class="qc-dl" type="button" data-act="dl">⬇ Download PDF</button>
       </div>
+      <div class="qc-book">${meetingCard()}</div>
     </div>
 
     <details class="qc-acc" id="accPicks">
