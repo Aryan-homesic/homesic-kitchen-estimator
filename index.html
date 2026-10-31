@@ -1152,7 +1152,12 @@ const RATES = {
   counter:    { granite: 700, quartz: 1100, install: 300, existing: 0 }, // per sq ft
   backsplash: { tiles: 200, existing: 0 },    // per sq ft
   // Sink is a material x type price, quoted per unit (like board x finish).
-  sinkType: { single: 7200, double: 15600, doubletray: 21600, tray: 12000 },  // per set, whatever the material
+  sink: {
+    ss:      { single: 7200,  double: 15600, doubletray: 21600, tray: 12000 },
+    granite: { single: 9600,  double: 21800, doubletray: 30100, tray: 16400 },
+    quartz:  { single: 8400,  double: 19200, doubletray: 26400, tray: 14400 },
+    ceramic: { single: 18000, double: 33600, doubletray: 46200, tray: 30600 }
+  },
   pvc:        { leg: 50, skirting: 3000 },                    // per leg / per strip
   faucet:     { standard: 1000, premium: 2000, designer: 4000 }, // per faucet
   // Hinge price depends on the function only; the brand is a preference, not a price.
@@ -1425,7 +1430,7 @@ function price(s = state){
   const HP  = Math.round(handles * RATES.handle[handle.id]);
   const CTP = (baseOn && !skip.counter) ? Math.round(info.base * COUNTER_DEPTH * RATES.counter[counter.id]) : 0;
   const BSP = skip.backsplash ? 0 : Math.round(info.grossBase * SPLASH_HEIGHT * RATES.backsplash[splash.id]);
-  const sinkRate = RATES.sinkType[sinkT.id];
+  const sinkRate = RATES.sink[sinkMat.id][sinkT.id];
   const sinkAmt = skip.sink ? 0 : sinkRate;
   const faucetAmt = skip.faucet ? 0 : RATES.faucet[faucet.id] * FAUCET_COUNT;
   const SP  = Math.round(sinkAmt + faucetAmt);
@@ -1523,8 +1528,9 @@ function optLabel(step, o){
     case 'handle': return RATES.handle[o.id] ? inr(RATES.handle[o.id]) + ' each' : 'Included';
     case 'counter': return RATES.counter[o.id] ? inr(RATES.counter[o.id]) + ' / sq ft' : 'Skip';
     case 'backsplash': return RATES.backsplash[o.id] ? inr(RATES.backsplash[o.id]) + ' / sq ft' : 'Skip';
-    case 'sinkMaterial': return '';
-    case 'sinkType': return inr(RATES.sinkType[o.id]);
+    case 'sinkMaterial': return '';   // the circles carry no price
+    case 'sinkType': return inr(RATES.sink[state.sinkMaterial || DEFAULTS.sinkMaterial][o.id]);
+
     case 'faucet': return inr(RATES.faucet[o.id]);
     case 'hingeBrand': return inr(RATES.hingeFn[fn.id]) + ' / hinge';
     case 'hingeFunction': return inr(RATES.hingeFn[o.id]) + ' / hinge';
@@ -1555,7 +1561,7 @@ function detailLines(step, o){
     case 'counter': return [inr(RATES.counter[o.id]) + ' per sq ft', round1(r.base * COUNTER_DEPTH) + ' sq ft · ' + inr(p.breakdown.CTP)];
     case 'backsplash': return [inr(RATES.backsplash[o.id]) + ' per sq ft', round1(r.grossBase * SPLASH_HEIGHT) + ' sq ft · ' + inr(p.breakdown.BSP)];
     case 'sinkMaterial': return ['looks only', 'the price is set by the bowl type'];
-    case 'sinkType': return [inr(RATES.sinkType[o.id]) + ' per set', 'any material'];
+    case 'sinkType': return [inr(RATES.sink[p.sinkMat.id][o.id]) + ' per set', 'in ' + p.sinkMat.name.toLowerCase()];
     case 'faucet': return [inr(RATES.faucet[o.id]) + ' each', FAUCET_COUNT + ' faucet in this quote'];
     case 'hingeBrand': return [inr(RATES.hingeFn[fn.id]) + ' per hinge', p.hinges + ' hinges · ' + inr(p.breakdown.HiP)];
     case 'hingeFunction': return [inr(RATES.hingeFn[o.id]) + ' per hinge', p.hinges + ' hinges · ' + inr(p.breakdown.HiP)];
@@ -1775,7 +1781,7 @@ function viewOptions(step){
         const label = isMat
           ? ''
           : g.key === 'sinkType'
-            ? inr(RATES.sinkType[o.id])
+            ? inr(RATES.sink[state.sinkMaterial || DEFAULTS.sinkMaterial][o.id])
             : optLabel({ id: g.key, key: g.key, opts: g.opts }, o);
         const media = o.img
           ? `<img src="${A}${o.img}" alt="" decoding="sync" loading="eager" onerror="this.style.display='none'">
@@ -2292,7 +2298,8 @@ stage.addEventListener('click', e => {
       });
       const chip = stage.querySelector(`.chip[data-group="${gkey}"]`);
       if(chip) chip.textContent = 'Skip';
-      if(st.dynamic){ draw(); return; }
+      // the bowl prices depend on the material, so both groups repaint
+      if(st.dynamic || gkey === 'sinkMaterial'){ draw(); return; }
       updateBar();
       return;
     }
@@ -2752,7 +2759,7 @@ function sheetPrice(key, id){
     case 'counter': return RATES.counter[id] ? inr(RATES.counter[id]) + ' / sq ft' : 'Included';
     case 'backsplash': return RATES.backsplash[id] ? inr(RATES.backsplash[id]) + ' / sq ft' : 'Included';
     case 'sinkMaterial': return '';
-    case 'sinkType': return inr(RATES.sinkType[id]);
+    case 'sinkType': return inr(RATES.sink[state.sinkMaterial || DEFAULTS.sinkMaterial][id]);
     case 'faucet': return inr(RATES.faucet[id]);
     case 'hingeBrand': return inr(RATES.hingeFn[state.hingeFunction || DEFAULTS.hingeFunction]) + ' / hinge';
     case 'hingeFunction': return inr(RATES.hingeFn[id]) + ' / hinge';
