@@ -1376,10 +1376,12 @@ const HANDLES = [
 const COUNTERS = [
   { id:'granite',  name:'Granite',           ds:'Natural stone', img:'card-counter-granite.jpg', tag:'Popular' },
   { id:'quartz',   name:'Quartz',            ds:'Non-porous', img:'card-counter-quartz.jpg' },
-  { id:'install',  name:'Only installation', ds:'You supply the slab, we fit it', img:'card-counter-install.jpg' }
+  { id:'install',  name:'Only installation', ds:'You supply the slab, we fit it', img:'card-counter-install.jpg' },
+  { id:'existing', name:'Already existing',  ds:'Keep the worktop you have', skip:true }
 ];
 const BACKSPLASH = [
-  { id:'tiles',    name:'Tiles',            ds:'Glazed tile splashback', img:'backsplash-tiles.jpg', tag:'Popular' }
+  { id:'tiles',    name:'Tiles',            ds:'Glazed tile splashback', img:'backsplash-tiles.jpg', tag:'Popular' },
+  { id:'existing', name:'Already existing', ds:'Keep the tiles you have', skip:true }
 ];
 const SINK_MATERIALS = [
   { id:'ss',      name:'Stainless steel', ds:'Hygienic and easy to clean', img:'sinks/material-ss.jpg', tag:'Popular' },
@@ -2443,7 +2445,6 @@ stage.addEventListener('click', e => {
         c.classList.toggle('on', on); c.setAttribute('aria-pressed', on);
       });
       updateBar();
-      setTimeout(() => go(state.step + 1), 320);
       return;
     }
     if(kind === 'unit'){
@@ -2496,9 +2497,9 @@ stage.addEventListener('click', e => {
     if(sg) state.skip[sg] = false;
     state[step.key] = id; save();
     stage.querySelectorAll('.opt').forEach(o => { o.classList.toggle('on', o === opt.closest('.opt')); o.setAttribute('aria-pressed', o === opt.closest('.opt')); });
-    stage.querySelector('.grid').classList.add('picked');
+    const grid = stage.querySelector('.grid');
+    if(grid) grid.classList.add('picked');
     updateBar();
-    setTimeout(() => go(state.step + 1), 320);
     return;
   }
   const qty = e.target.closest('[data-act="qty"]');
