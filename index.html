@@ -997,6 +997,47 @@ body.sheet-open{overflow:hidden}
   .qa-text i{font-size:10.5px}
 }
 
+
+/* ---------- quote header: back arrow ---------- */
+.doc-top{position:relative}
+.doc-back{position:absolute;left:-6px;top:2px;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+  background:#fff;color:var(--ink);font-size:17px;line-height:1;display:grid;place-items:center;
+  transition:border-color .18s,background .18s,transform .18s}
+.doc-back:hover{border-color:var(--accent);background:var(--accent-bg);transform:translateX(-2px)}
+.doc-headtext{padding-left:46px}
+@media (max-width:430px){ .doc-headtext{padding-left:44px} }
+
+/* ---------- payment schedule as a timeline ---------- */
+.payline{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:20px 0 0;padding:0;position:relative}
+.payline::before{content:"";position:absolute;left:9px;right:9px;top:7px;height:2px;background:var(--line);border-radius:2px}
+.payline li{position:relative;display:flex;flex-direction:column;padding:20px 8px 0 0;min-width:0}
+.payline li::before{content:"";position:absolute;left:3px;top:2px;width:12px;height:12px;border-radius:50%;
+  background:#fff;border:2px solid var(--accent);box-sizing:border-box}
+.payline li:first-child::before{background:var(--accent)}
+.pl-pct{display:block;font-family:var(--display);font-size:14px;color:var(--accent-d);line-height:1.1}
+.pl-lab{display:block;font-size:9.5px;color:var(--muted);line-height:1.25;margin-top:3px;max-width:11ch}
+.pl-amt{display:block;font-size:11px;color:var(--ink);margin-top:auto;padding-top:6px;font-variant-numeric:tabular-nums}
+@media (max-width:430px){
+  .payline li{padding-right:6px}
+  .pl-pct{font-size:13px}
+  .pl-lab{font-size:9px}
+  .pl-amt{font-size:10.5px}
+}
+
+/* ---------- closing strip: quietly obvious ---------- */
+.doc-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:22px 0 8px;
+  padding:14px 16px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;
+  background:#fff;box-shadow:0 18px 34px -30px rgba(196,112,138,.85)}
+.doc-foot p{margin:0;font-size:12px;color:var(--ink2);line-height:1.45}
+.foot-act{flex:none;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--accent);
+  background:var(--accent-bg);color:var(--accent-d);font-size:11.5px;letter-spacing:.3px;
+  padding:9px 14px;border-radius:999px;white-space:nowrap;transition:background .18s,gap .18s}
+.foot-act:hover{background:#FBE3E9;gap:12px}
+@media (max-width:430px){
+  .doc-foot{flex-direction:column;align-items:flex-start;gap:10px;padding:14px}
+  .foot-act{width:100%;justify-content:space-between;font-size:12px}
+}
+
 </style>
 </head>
 <body>
@@ -1996,9 +2037,9 @@ function quoteCard(p){
       </div>
     </details>
 
-    <div class="qc-pay">
-      ${TERMS.map(([k, f]) => `<div><b>${Math.round(f * 100)}%</b><span>${esc(k)}</span><i>${inr(p.total * f)}</i></div>`).join('')}
-    </div>
+    <ol class="payline" aria-label="Payment schedule">
+      ${TERMS.map(([k, f]) => `<li><span class="pl-pct">${Math.round(f * 100)}%</span><span class="pl-lab">${esc(k)}</span><span class="pl-amt">${inr(p.total * f)}</span></li>`).join('')}
+    </ol>
     <p class="qc-note">Final figures confirmed after site measurement.${state.plan ? ' Floor plan referenced: ' + esc(state.plan.name) + '.' : ''}</p>
   </section>`;
 }
@@ -2019,18 +2060,21 @@ function viewQuote(){
   const date = new Date(state.lead.at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
   return `<div class="qdoc">
     <div class="doc-top">
-      <div><h1 tabindex="-1">Your kitchen quote</h1>
-        <p class="delivery ${state.lead.delivery || 'local'}">${state.lead.delivery === 'sent' ? 'Request sent to the studio.' : state.lead.delivery === 'sending' ? 'Sending your request to the studio…' : state.lead.delivery === 'failed' ? 'Could not reach the studio — your request is saved on this device.' : 'Saved on this device.'}</p>
+      <button class="doc-back" type="button" data-go="${state.step - 1}" aria-label="Back">←</button>
+      <div class="doc-headtext"><h1 tabindex="-1">Your kitchen quote</h1>
+        <p class="delivery ${state.lead.delivery || 'local'}">${state.lead.delivery === 'failed' ? 'Your request is saved on this device.' : 'Saved on this device.'}</p>
       </div>
       <div class="doc-acts">
         ${CONFIG.whatsapp ? '<button class="btn" type="button" data-act="wa">Share on WhatsApp</button>' : ''}
-                <button class="btn line" type="button" data-act="edit">Edit choices</button>
         ${cal ? `<a class="btn" href="${esc(cal)}" target="_blank" rel="noopener">Book a site visit →</a>` : ''}
       </div>
     </div>
     ${quoteCard(p)}
-    <p class="doc-foot">${state.lead.delivery === 'failed' ? 'Send it on WhatsApp if it is urgent.' : cal ? 'Book a site visit above, or our designer will call you.' : 'Our designer will call you to book your free site visit.'} · <button class="linkbtn" type="button" data-act="reset">Start a new estimate</button></p>
     ${feedbackHtml(p)}
+    <div class="doc-foot">
+      <p>${state.lead.delivery === 'failed' ? 'Send it on WhatsApp if it is urgent.' : cal ? 'Book a site visit above, or our designer will call you.' : 'Our designer will call you to book your free site visit.'}</p>
+      <button class="foot-act" type="button" data-act="reset">Start a new estimate<span aria-hidden="true">→</span></button>
+    </div>
   </div>`;
 }
 function viewLeads(){
