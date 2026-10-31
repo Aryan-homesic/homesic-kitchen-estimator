@@ -612,7 +612,7 @@ body{
   background-image:none;
   color:var(--ink);
 }
-.grid-bg,.grid{display:none}
+.grid-bg{display:none}
 .top{background:rgba(248,241,234,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 body.start .top{background:transparent;border-color:transparent}
 .brand b{color:var(--ink);letter-spacing:2.6px}
@@ -845,6 +845,24 @@ body{
 .cmpwrap{background:var(--white);border-color:var(--line2)}
 .ph-none{background:var(--frame);color:var(--muted);border-color:var(--line2)}
 
+
+/* counted steps (drawers) as a clean list on the light shell */
+.grid.row .opt{display:grid;grid-template-columns:92px 1fr;grid-template-areas:"ph meta" "ph qty";
+  gap:6px 14px;align-items:center;padding:10px;position:relative}
+.grid.row .opt-hit{display:contents}
+.grid.row .ph{grid-area:ph;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:var(--frame)}
+.grid.row .ph img{width:100%;height:100%;object-fit:cover}
+.grid.row .meta{grid-area:meta;position:static;left:auto;right:auto;bottom:auto;background:none;
+  padding:0 34px 0 0;gap:2px;z-index:auto}
+.grid.row .nm{text-shadow:none;color:var(--ink);font-size:15px}
+.grid.row .nm em{background:var(--accent-bg);color:var(--accent-d)}
+.grid.row .ds{opacity:1;color:var(--muted);white-space:normal;line-height:1.35}
+.grid.row .detail{display:none}
+.grid.row .tick{top:12px;right:12px;bottom:auto}
+.grid.row .qtybar{grid-area:qty;margin:0;padding:0;background:transparent;border:0}
+.grid.row .qtybar .qlabel{font-size:10px;letter-spacing:1.2px;color:var(--muted)}
+.grid.row .qty{border:1px solid var(--line2);border-radius:999px;background:#fff}
+
 </style>
 </head>
 <body>
@@ -1059,9 +1077,9 @@ const LIGHTING = [
   { id:'elite',    name:'Elite',    ds:'Complete lighting + concealed outlets', img:'lighting-complete.jpg' }
 ];
 const DRAWERS = [
-  { id:'normal', name:'Normal channel',  ds:'Drawer box on standard channels', img:'storage/unit-base.jpg' },
-  { id:'jali',   name:'Jali + channels', ds:'Wire-basket drawer on channels', img:'storage/unit-wall.jpg' },
-  { id:'tandem', name:'Innotech tandem', ds:'Soft-close tandem runners', img:'storage/unit-tall.jpg', tag:'Popular' }
+  { id:'normal', name:'Normal channel',        ds:'Drawer box on standard channels', img:'storage/unit-base.jpg' },
+  { id:'jali',   name:'Jali + channels',       ds:'Wire-basket drawer on channels', img:'storage/unit-wall.jpg' },
+  { id:'tandem', name:'Innotech tandem',       ds:'Soft-close tandem runners', img:'storage/unit-tall.jpg', tag:'Popular' }
 ];
 
 

@@ -37,7 +37,7 @@ Hinges = handles × 2.
 
 ## 5. Drawers — ₹ per piece
 
-| Normal channel | Jali + channels | Innotech tandem |
+| Normal channel with drawers | Jali drawers + channels | Innotech tandem drawers |
 |---|---|---|
 | 2000 | 3000 | 4000 |
 

@@ -146,11 +146,11 @@ Flat per kitchen — not multiplied by run length.
 
 ## Page 10 · Drawers — per piece
 
-| Option | Rate / piece |
+| Option (as the studio lists it) | Rate / piece |
 |---|---|
-| Normal channel | 2,000 |
-| Jali + channels | 3,000 |
-| Innotech tandem | 4,000 |
+| Normal channel with drawers | 2,000 |
+| Jali drawers + channels | 3,000 |
+| Innotech tandem drawers | 4,000 |
 
 Quantity: entered per type (0–20). Optional; zero by default.
 
