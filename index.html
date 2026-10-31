@@ -1186,6 +1186,27 @@ html body .photo-view .pv-close{position:absolute;top:calc(14px + env(safe-area-
   .mc{width:100%}
 }
 
+
+/* collapsible meeting card: closed it matches the price+download height, open it unfolds in place */
+.mc{display:flex;flex-direction:column;padding:0;transition:box-shadow .25s ease, border-color .25s ease}
+.mc:not(.open){height:103px}
+.mc.open{height:auto}
+.mc-top{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:auto;
+  min-height:64px;padding:12px;border:0;border-radius:16px;background:transparent;cursor:pointer;text-align:left}
+.mc:not(.open) .mc-top{flex:1 1 auto}
+.mc.open .mc-top{min-height:56px;border-bottom:1px solid var(--line);border-radius:16px 16px 0 0}
+.mc-top:hover{background:var(--accent-bg)}
+.mc-top .mc-head{display:flex;flex-direction:column;gap:3px;min-width:0;margin:0}
+.mc-chev{flex:none;width:9px;height:9px;border-right:1.8px solid var(--accent-d);border-bottom:1.8px solid var(--accent-d);
+  transform:rotate(45deg) translate(-1px,-1px);transition:transform .35s cubic-bezier(.22,.9,.2,1);margin-right:4px}
+.mc.open .mc-chev{transform:rotate(-135deg) translate(-2px,-2px)}
+.mc-body{max-height:0;opacity:0;overflow:hidden;padding:0 12px;
+  transition:max-height .55s cubic-bezier(.25,.8,.35,1), opacity .35s ease .06s, padding .45s ease}
+.mc.open .mc-body{max-height:700px;opacity:1;padding:0 12px 12px}
+@media (max-width:900px){
+  .mc:not(.open){height:64px}
+}
+
 </style>
 </head>
 <body>
@@ -2291,11 +2312,16 @@ function meetingCard(){
          <button type="button" class="mc-go" data-act="meet-confirm"${m.date && m.time ? '' : ' disabled'}>Confirm</button>
        </div>`;
 
-  return `<div class="mc" id="meetCard" data-mode="${m.mode}">
-    <div class="mc-head">
-      <span class="mc-title">Meet your designer</span>
-      <span class="mc-sub">at the studio's expense</span>
-    </div>
+  const open = m.open === true;
+  return `<div class="mc${open ? ' open' : ''}" id="meetCard" data-mode="${m.mode}">
+    <button class="mc-top" type="button" data-act="meet-toggle" aria-expanded="${open}" aria-controls="mcBody">
+      <span class="mc-head">
+        <span class="mc-title">Meet your designer</span>
+        <span class="mc-sub">${m.confirmed && m.date ? dayLabel(m.date) + ' · ' + m.time : 'Virtual or at the centre'}</span>
+      </span>
+      <span class="mc-chev" aria-hidden="true"></span>
+    </button>
+    <div class="mc-body" id="mcBody">
     <div class="mc-modes">${modes}</div>
     <div class="mc-cal">
       <div class="mc-bar">
@@ -2312,6 +2338,7 @@ function meetingCard(){
     ${cities}
     <div class="mc-slots">${slots}</div>
     ${summary}
+    </div>
   </div>`;
 }
 
@@ -2777,6 +2804,15 @@ stage.addEventListener('click', e => {
   }
   else if(a === 'wa') whatsapp();
   else if(a === 'print') window.print();
+  else if(a === 'meet-toggle'){
+    const card = act.closest('.mc');
+    if(card){
+      const open = card.classList.toggle('open');
+      act.setAttribute('aria-expanded', open);
+      meetState().open = open;
+      save();
+    }
+  }
   else if(a === 'meet-mode'){ const m = meetState(); m.mode = act.dataset.mode; m.confirmed = false; save(); draw(); }
   else if(a === 'meet-day'){ const m = meetState(); m.date = act.dataset.date; m.confirmed = false; save(); draw(); }
   else if(a === 'meet-time'){ const m = meetState(); m.time = act.dataset.time; m.confirmed = false; save(); draw(); }
