@@ -13,13 +13,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#121110; --white:#1B1A18; --frame:#ECE7DF; --grid:rgba(255,255,255,.028);
-  --ink:#F1ECE4; --ink2:#CFC8BC; --muted:#958D80;
-  --line:#2B2926; --line2:#3D3A35;
-  --accent:#C98A5B; --accent-d:#DDA67C; --accent-bg:rgba(201,138,91,.15);
-  --ok:#86B596; --warn:#E3906F;
-  --r:6px;
+  --bg:#F8F1EA; --white:#FFFFFF; --frame:#F2E8DF; --grid:rgba(58,34,37,.02);
+  --ink:#3A2225; --ink2:#5C403C; --muted:#9B8078; --faint:#B09A92;
+  --line:#EBDDD3; --line2:#DFCCBE;
+  --accent:#C0856F; --accent-d:#A66A54; --accent-bg:rgba(192,133,111,.14);
+  --ok:#6F8F6A; --warn:#B4614A;
+  --r:14px;
   --display:Jost,"Futura","Avenir Next",ui-sans-serif,system-ui,sans-serif;
+  --serif:Lora,Georgia,"Times New Roman",serif;
   --ease:cubic-bezier(.2,.7,.2,1);
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -588,6 +589,199 @@ body.doc #stage{overflow-y:auto;padding-bottom:40px}
   .trust{display:none}
 }
 @media (max-height:560px){ #stage{overflow:auto} }
+
+/* ============================================================
+   LIGHT / MOBILE-FIRST THEME
+   Warm cream shell, white cards, dusty-rose accent.
+   ============================================================ */
+body{
+  background:var(--bg);
+  background-image:none;
+  color:var(--ink);
+}
+.grid-bg,.grid{display:none}
+.top{background:rgba(248,241,234,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+body.start .top{background:transparent;border-color:transparent}
+.brand b{color:var(--ink);letter-spacing:2.6px}
+.brand small{color:var(--muted);letter-spacing:1.4px}
+.stepno{margin-left:auto;font-size:11.5px;letter-spacing:.6px;color:var(--muted);white-space:nowrap}
+
+/* page heading */
+.head h1{font-family:var(--serif);font-weight:600;letter-spacing:-.6px;line-height:1.12;color:var(--ink)}
+.hint,.head .hint{color:var(--muted)}
+.eyebrow{color:var(--accent-d);letter-spacing:2px}
+
+/* option cards */
+.opt{background:#fff;border:1px solid var(--line);border-radius:18px;padding:8px;
+  box-shadow:0 10px 24px -22px rgba(58,34,37,.7);transition:border-color .15s,box-shadow .2s,transform .12s}
+.opt:hover{box-shadow:0 14px 30px -22px rgba(58,34,37,.85)}
+.opt.on{border-color:var(--accent);box-shadow:0 14px 30px -20px rgba(192,133,111,.9)}
+.opt-hit{border-radius:14px}
+.ph{background:var(--frame);border-radius:14px;overflow:hidden}
+.ph img{border-radius:14px}
+.meta{padding:11px 8px 8px;position:relative;padding-right:36px}
+.nm{color:var(--ink);font-weight:600;font-size:15px}
+.meta .ds,.ds{color:var(--muted)}
+.pr{color:var(--accent-d);font-weight:600;margin-top:3px}
+.detail{color:var(--muted)}
+.tick{position:absolute;right:14px;bottom:18px;top:auto;width:26px;height:26px;border-radius:50%;
+  background:transparent;border:1.6px solid var(--line2);color:transparent;font-size:12px;
+  display:grid;place-items:center}
+.opt.on .tick{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt.on .nm{color:var(--ink)}
+.zoom{background:rgba(255,255,255,.9);color:var(--ink);border:0;box-shadow:0 2px 8px -4px rgba(58,34,37,.5)}
+
+/* segmented + finish cards */
+.segbtn{background:#fff;border:1px solid var(--line2);color:var(--ink2);border-radius:999px}
+.segbtn.on{background:var(--accent-bg);border-color:var(--accent);color:var(--ink)}
+.fcard{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.fcard.on{border-color:var(--accent);box-shadow:0 12px 26px -20px rgba(192,133,111,.9)}
+.fimg{border-radius:12px;overflow:hidden;background:var(--frame)}
+.fname{color:var(--ink)}
+.frate{color:var(--accent-d)}
+
+/* buttons + chips */
+.btn{background:var(--accent);border:1px solid var(--accent);color:#fff;border-radius:999px;font-weight:600}
+.btn:hover:not(:disabled){background:var(--accent-d);border-color:var(--accent-d)}
+.btn:disabled{background:#fff;color:var(--faint);border-color:var(--line2)}
+.btn.line{background:#fff;color:var(--ink);border-color:var(--line2)}
+.btn.line:hover:not(:disabled){border-color:var(--ink2);background:#fff}
+.chip{background:#fff;border:1px solid var(--line2);color:var(--ink2);border-radius:999px}
+.chip:hover{border-color:var(--accent);color:var(--ink)}
+.linkbtn{color:var(--accent-d)}
+
+/* dock */
+.dock-bar{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:999px;padding:6px;
+  box-shadow:0 22px 48px -30px rgba(58,34,37,.55);backdrop-filter:blur(16px) saturate(1.2)}
+.dock-btn{background:var(--frame);color:var(--ink);border:1px solid var(--line);width:42px;height:42px;border-radius:50%;font-size:15px}
+.dock-btn:hover:not(:disabled){background:#fff}
+.dock-cur{color:var(--ink)}
+.dock-cur .dots i{background:var(--line2)}
+.dock-cur .dots i.done{background:var(--accent)}
+.dock-cur .dots i.cur{background:var(--ink)}
+.dock-sep{background:var(--line)}
+.est span{color:var(--muted);font-size:9px;letter-spacing:1.3px;text-transform:uppercase}
+.est b{color:var(--ink);font-family:var(--display);font-size:15px}
+.dock-go{flex:none;padding:12px 20px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);
+  color:#fff;font-family:var(--display);font-size:14px;letter-spacing:.3px;transition:background .15s,border-color .15s,opacity .15s}
+.dock-go:hover:not(:disabled){background:var(--accent-d);border-color:var(--accent-d)}
+.dock-go:disabled{background:#fff;color:var(--faint);border-color:var(--line2)}
+.dock-menu{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 50px -30px rgba(58,34,37,.6)}
+.dock-menu button{color:var(--ink2)}
+.dock-menu button:hover{background:var(--frame);color:var(--ink)}
+.dock-menu button.cur{background:var(--accent-bg)}
+.dock-menu .n{color:var(--muted)}
+
+/* details gate */
+.gate{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 30px 70px -50px rgba(58,34,37,.6)}
+.gate h1{font-family:var(--serif);color:var(--ink)}
+.gate .sub{color:var(--muted)}
+.field label{color:var(--ink2)}
+.field input{border:1px solid var(--line2);border-radius:12px;background:#fff;color:var(--ink)}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+.opt-badge{background:var(--frame);color:var(--muted)}
+.fine{color:var(--muted)}
+
+/* quote card */
+.qcard{background:#fff;border:1px solid var(--line);box-shadow:0 30px 70px -55px rgba(58,34,37,.6)}
+.qc-eyebrow{color:var(--accent-d)}
+.qc-sub{color:var(--muted)}
+.qc-picks dl div,.qc-bill li{border-color:var(--line)}
+.qc-bill li span i{color:var(--muted)}
+.qc-sum.total{border-top-color:var(--ink)}
+.qc-pay div{background:var(--frame);border-color:var(--line)}
+.qc-pay div:first-child{background:#FBEADF;border-color:#EFD3C4}
+.qc-dl{background:linear-gradient(180deg,#CB8E76 0%,#B5765F 100%);
+  box-shadow:0 10px 22px -12px rgba(181,118,95,.9),inset 0 1px 0 rgba(255,255,255,.35)}
+.qc-note{color:var(--muted)}
+
+/* feedback */
+.fb{background:#fff;border:1px solid var(--line);box-shadow:0 30px 70px -55px rgba(58,34,37,.6)}
+.fb-head h2{font-family:var(--serif);color:var(--ink)}
+.fb-head .hint{color:var(--muted)}
+.fbchip{background:#fff;border:1px solid var(--line2);color:var(--ink2)}
+.fbchip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.fb-row span{color:var(--muted)}
+.fb-gap.ok{color:#567a52}
+.fb-gap.warn{color:var(--warn)}
+.fb-status{color:var(--muted)}
+
+/* start screen: cream page, photo as a soft hero */
+body.start .backdrop img{filter:saturate(1.02) brightness(1.02)}
+.backdrop::after{background:linear-gradient(180deg,rgba(248,241,234,0) 0%,rgba(248,241,234,.22) 34%,rgba(248,241,234,.86) 58%,#F8F1EA 70%)}
+body:not(.start) .backdrop::after{background:linear-gradient(180deg,rgba(248,241,234,.82) 0%,rgba(248,241,234,.66) 40%,rgba(248,241,234,.9) 100%)}
+.hero h1,.start h1{color:var(--ink);font-family:var(--serif);letter-spacing:-1px}
+.lead{color:var(--ink2)}
+.trust li{color:var(--ink2)}
+.trust li::before{color:var(--accent)}
+
+/* one CTA per screen: the dock carries it */
+.head .head-action .btn{display:none}
+
+/* card image is a banner, not a square: less catalogue chrome, more photo */
+.ugrid .ph,.tgrid .ph{aspect-ratio:4/3}
+.ugrid .ph img,.tgrid .ph img{object-position:50% 38%}
+
+/* quiz pages sit on plain cream; only Start carries the hero photo */
+body:not(.start) .backdrop{opacity:0;visibility:hidden}
+
+/* photo viewer keeps a dark room so images pop */
+.photo-view{background:rgba(24,15,16,.94)}
+.pv-close{border-color:rgba(255,255,255,.25);color:#fff}
+
+
+/* --- details gate on the light shell --- */
+.gate .field input{background:#fff;border-color:var(--line2);color:var(--ink);font-family:Inter,system-ui,sans-serif}
+.gate .field input:focus{border-color:var(--accent);outline:2px solid var(--accent-bg)}
+.gate .field input::placeholder{color:var(--faint)}
+.gate .btn,.gate .btn.lg{background:var(--accent);border-color:var(--accent);color:#fff}
+.gate .btn:hover{background:var(--accent-d);border-color:var(--accent-d)}
+.gate .btn:disabled{background:#fff;color:var(--faint);border-color:var(--line2)}
+.planbox,.plan,.drop,.dropzone{background:var(--frame) !important;border:1px dashed var(--line2) !important;color:var(--ink2) !important}
+.planbox *,.plan *,.drop *,.dropzone *{color:inherit}
+
+/* --- "no photo" tile: light, not a dark block --- */
+.ph-none,.ph-none span{
+  background:var(--frame);
+  color:var(--muted);
+  border:1px dashed var(--line2);
+  border-radius:12px;
+  letter-spacing:1.4px;
+  text-transform:uppercase;
+  font-size:11px;
+}
+
+/* --- soft counters and steppers --- */
+.qtybar{background:var(--frame);border-radius:12px}
+.qty button{background:#fff;border:1px solid var(--line2);color:var(--ink)}
+.qty span{color:var(--ink)}
+
+/* --- compare table --- */
+.cmpwrap{background:#fff;border:1px solid var(--line);border-radius:14px}
+.cmpwrap th,.cmpwrap td{border-color:var(--line);color:var(--ink2)}
+.cmpwrap thead th{color:var(--muted)}
+
+/* --- misc text --- */
+.delivery{color:var(--muted)}
+.doc-foot{color:var(--muted)}
+
+
+/* --- floor plan control on the light shell --- */
+.upload{background:var(--frame);border:1px dashed var(--line2);color:var(--ink)}
+.upload:hover{background:#fff;border-color:var(--accent)}
+.upload.has-file{background:#fff;border-style:solid;border-color:var(--line)}
+.up-ico{background:var(--accent-bg);color:var(--accent-d)}
+.up-meta b{color:var(--ink)}
+.up-meta small{color:var(--muted)}
+.pdfbadge{background:var(--accent-bg);color:var(--accent-d)}
+.upload.has-file img{border-radius:8px}
+
+/* --- skip chips sit quietly above the group --- */
+.chip{font-size:12.5px}
+
+/* --- error text --- */
+.err{color:var(--warn)}
+
 </style>
 </head>
 <body>
@@ -599,6 +793,7 @@ body.doc #stage{overflow-y:auto;padding-bottom:40px}
         <img class="brand-logo" src="assets/logo-mark.png" alt="">
         <span><b>HOMESIC</b><small>Interiors &amp; Design</small></span>
       </a>
+      <span class="stepno" id="stepNo"></span>
     </div>
   </header>
   <main id="stage" aria-live="polite"></main>
@@ -611,7 +806,9 @@ body.doc #stage{overflow-y:auto;padding-bottom:40px}
       <span class="dots" id="dots"></span><span id="dockStep"></span>
     </button>
     <span class="dock-sep"></span>
-    <div class="est" id="est"><span id="estLbl">Estimate</span><b id="total">—</b></div>
+    <div class="est" id="est"><span id="estLbl">Estimated price</span><b id="total">—</b></div>
+    <span class="dock-sep"></span>
+    <button class="dock-go" id="dockGo" type="button">Continue</button>
   </div>
 </nav>
 
@@ -1683,9 +1880,18 @@ function updateBar(){
   const i = state.step, p = price();
   $('back').disabled = i <= 1;
   $('total').textContent = inr(p.total);
-  $('estLbl').textContent = p.assumed ? 'Est. · ' + ROOM.l + '×' + ROOM.b + ' ft room' : 'Estimate';
+  $('estLbl').textContent = p.assumed ? 'Estimated price · assumed room' : 'Estimated price';
   $('dock').classList.toggle('gone', i >= DETAILS);
   $('dockStep').textContent = STEPS[i].eyebrow || '';
+  const total = LAST;
+  const no = $('stepNo');
+  if(no) no.textContent = (i >= 1 && i < DETAILS) ? 'Step ' + i + ' of ' + total : '';
+  const go = $('dockGo');
+  if(go){
+    const can = complete(i);
+    go.disabled = !can;
+    go.textContent = can ? 'Continue' : (SKIP_GROUP[STEPS[i].id] ? 'Skip' : 'Continue');
+  }
   $('dots').innerHTML = STEPS.slice(1).map((_, k) => {
     const n = k + 1;
     return `<i class="${n < i ? 'done' : n === i ? 'cur' : ''}"></i>`;
@@ -2107,6 +2313,11 @@ function sendQuote(withFeedback, opts){
   }
 }
 $('back').addEventListener('click', () => go(state.step - 1));
+$('dockGo').addEventListener('click', () => {
+  const cta = document.querySelector('.head-action .btn');
+  if(cta && !cta.disabled){ cta.click(); return; }
+  if(complete(state.step)) go(state.step + 1);
+});
 const dock = $('dock');
 $('dockCur').addEventListener('click', () => {
   const open = dock.classList.toggle('open');
