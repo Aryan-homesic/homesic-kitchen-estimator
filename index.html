@@ -863,6 +863,49 @@ body{
 .grid.row .qtybar .qlabel{font-size:10px;letter-spacing:1.2px;color:var(--muted)}
 .grid.row .qty{border:1px solid var(--line2);border-radius:999px;background:#fff}
 
+
+/* ---------- inline editor sheet ---------- */
+.qc-picks dl div{display:grid;grid-template-columns:1fr auto;column-gap:10px;align-items:center;position:relative;padding-right:0}
+.qc-picks dt{grid-column:1/-1}
+.qc-picks dd{grid-column:1;min-width:0}
+.qc-edit{grid-column:2;align-self:center;border:1px solid var(--line2);background:#fff;color:var(--accent-d);
+  font-size:10px;letter-spacing:.6px;text-transform:uppercase;padding:5px 10px;border-radius:999px;white-space:nowrap}
+.qc-edit:hover{border-color:var(--accent);background:var(--accent-bg)}
+
+.sheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;background:rgba(58,47,53,0);transition:background .2s}
+.sheet.in{background:rgba(58,47,53,.34)}
+.sheet-panel{width:100%;max-width:520px;max-height:82vh;display:flex;flex-direction:column;background:var(--paper);
+  border-radius:22px 22px 0 0;box-shadow:0 -24px 60px -30px rgba(58,47,53,.55);transform:translateY(14px);opacity:.6}
+.sheet.in .sheet-panel{transform:none;opacity:1;transition:transform .22s var(--ease),opacity .22s}
+.sheet-panel header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 10px;border-bottom:1px solid var(--line)}
+.sheet-panel header b{font-family:var(--serif);font-size:20px;color:var(--ink)}
+.sheet-x{width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);background:#fff;color:var(--ink2)}
+.sheet-list{overflow:auto;padding:12px 16px 6px;display:grid;gap:8px}
+.sheet-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.sheet-grid.round{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sheet-opt{display:grid;grid-template-columns:1fr auto 22px;align-items:center;gap:10px;width:100%;
+  padding:12px 14px;border:1px solid var(--line2);border-radius:14px;background:#fff;text-align:left}
+.sheet-opt.on{border-color:var(--accent);background:var(--accent-bg)}
+.so-name{font-size:13.5px;color:var(--ink);font-weight:500}
+.so-price{font-size:12px;color:var(--accent-d);font-variant-numeric:tabular-nums;white-space:nowrap}
+.so-tick{width:20px;height:20px;border-radius:50%;border:1.4px solid var(--line2);display:grid;place-items:center;font-size:11px;color:transparent}
+.sheet-opt.on .so-tick{background:var(--accent);border-color:var(--accent);color:#fff}
+.sheet-sub{padding:10px 2px 2px;display:flex;align-items:center;gap:10px}
+.ss-label{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+.sheet-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:12px 14px;
+  border:1px solid var(--line2);border-radius:14px;background:#fff}
+.sheet-row.on{border-color:var(--accent);background:var(--accent-bg)}
+.sr-name{display:flex;flex-direction:column;gap:2px;font-size:13.5px;color:var(--ink);font-weight:500}
+.sr-name i{font-style:normal;font-size:11.5px;color:var(--muted);font-weight:400}
+.sr-price{font-size:12px;color:var(--accent-d)}
+.sheet-row .qty{display:flex;align-items:center;border:1px solid var(--line2);border-radius:999px;overflow:hidden;background:#fff}
+.sheet-row .qty button{width:34px;height:32px;border:0;background:#fff;color:var(--ink);font-size:16px}
+.sheet-row .qty b{min-width:26px;text-align:center;font-size:13px;color:var(--ink)}
+.sheet-panel footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px 18px;border-top:1px solid var(--line)}
+#sheetTotal{font-family:var(--display);font-size:15px;color:var(--ink)}
+body.sheet-open{overflow:hidden}
+@media (min-width:640px){ .sheet{align-items:center} .sheet-panel{border-radius:20px} }
+
 </style>
 </head>
 <body>
@@ -895,6 +938,14 @@ body{
 
 <form id="wfForm" method="POST" target="wfTarget" style="display:none"></form>
 <iframe id="wfTarget" name="wfTarget" title="Form delivery" aria-hidden="true" style="position:absolute;width:0;height:0;border:0;visibility:hidden"></iframe>
+
+<figure class="sheet" id="sheet" hidden>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <header><b id="sheetTitle">Change</b><button class="sheet-x" type="button" data-act="close-sheet" aria-label="Close">✕</button></header>
+    <div class="sheet-list" id="sheetList"></div>
+    <footer><span id="sheetTotal"></span><button class="btn line" type="button" data-act="close-sheet">Done</button></footer>
+  </div>
+</figure>
 
 <figure class="photo-view" id="photoView" hidden>
   <button class="pv-close" type="button" data-act="close-view" aria-label="Close photo">✕</button>
@@ -1771,18 +1822,18 @@ function quoteCard(p){
   const units = UNITS.filter(u => state.units[u.id]).map(u => u.name).join(' + ');
   const dwrLine = drawerSummary(p);
   const picks = [
-    ['Shape', layout.name + ' · ' + state.l + ' × ' + state.b + ' × ' + state.h + ' ft'],
-    ['Storage', units],
-    ['Board and finish', p.board.name + ' + ' + p.finish.name + (p.glassOn ? ' · glass shutters' : '')],
-    ['Handles', p.handle.name],
-    state.skip.counter ? null : ['Worktop', p.counter.name],
-    state.skip.backsplash ? null : ['Backsplash', p.splash.name],
-    state.skip.sink ? null : ['Sink', p.sinkMat.name + ' · ' + p.sinkT.name],
-    state.skip.faucet ? null : ['Tap', p.faucet.name],
-    ['Hinges', p.hBrand.name + ' · ' + p.hFn.name],
-    state.skip.lighting ? null : ['Lighting', p.light.name],
-    dwrLine !== 'none' ? ['Drawers', dwrLine] : null
-  ].filter(Boolean);
+    ['shape', 'Shape', layout.name + ' · ' + state.l + ' × ' + state.b + ' × ' + state.h + ' ft'],
+    ['storage', 'Storage', units],
+    ['build', 'Board and finish', p.board.name + ' + ' + p.finish.name + (p.glassOn ? ' · glass shutters' : '')],
+    ['handles', 'Handles', p.handle.name],
+    ['worktop', 'Worktop', state.skip.counter ? 'Skipped' : p.counter.name],
+    ['backsplash', 'Backsplash', state.skip.backsplash ? 'Skipped' : p.splash.name],
+    ['sink', 'Sink', state.skip.sink ? 'Skipped' : p.sinkMat.name + ' · ' + p.sinkT.name],
+    ['tap', 'Tap', state.skip.faucet ? 'Skipped' : p.faucet.name],
+    ['hinges', 'Hinges', p.hBrand.name + ' · ' + p.hFn.name],
+    ['lighting', 'Lighting', state.skip.lighting ? 'Skipped' : p.light.name],
+    ['drawers', 'Drawers', dwrLine === 'none' ? 'None' : dwrLine]
+  ];
   const rows = groupedBill(p);
   const date = state.lead && state.lead.at
     ? new Date(state.lead.at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
@@ -1802,7 +1853,11 @@ function quoteCard(p){
 
     <div class="qc-picks">
       <h2>What you picked</h2>
-      <dl>${picks.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+      <dl>${picks.map(([k, label, v]) => `<div>
+        <dt>${esc(label)}</dt>
+        <dd>${esc(v)}</dd>
+        <button class="qc-edit" type="button" data-act="edit" data-k="${k}" aria-label="Change ${esc(label)}">Change</button>
+      </div>`).join('')}</dl>
     </div>
 
     <div class="qc-bill">
@@ -2176,6 +2231,23 @@ stage.addEventListener('click', e => {
   }
   else if(a === 'wa') whatsapp();
   else if(a === 'print') window.print();
+  else if(a === 'edit') openSheet(act.dataset.k);
+  else if(a === 'close-sheet') closeSheet();
+  else if(a === 'sheet-pick'){
+    const k = act.dataset.k, id = act.dataset.id;
+    state[k] = id;
+    if(act.dataset.skip) state.skip[act.dataset.skip] = false;
+    if(k === 'counter' || k === 'backsplash' || k === 'lighting') state.skip[k === 'counter' ? 'counter' : k === 'backsplash' ? 'backsplash' : 'lighting'] = false;
+    save(); refreshSheet();
+  }
+  else if(a === 'sheet-unit'){ state.units[act.dataset.id] = !state.units[act.dataset.id]; save(); refreshSheet(); }
+  else if(a === 'sheet-board'){ state.board = act.dataset.id; save(); refreshSheet(); }
+  else if(a === 'sheet-glass'){ state.glass = !state.glass; save(); refreshSheet(); }
+  else if(a === 'sheet-qty'){
+    const id = act.dataset.id, d = Number(act.dataset.d);
+    state.drawers[id] = Math.max(0, Math.min(20, (Number(state.drawers[id]) || 0) + d));
+    save(); refreshSheet();
+  }
   else if(a === 'dl') downloadQuote(act);
   else if(a === 'reset'){
     if(planUrl) URL.revokeObjectURL(planUrl); planUrl = '';
@@ -2419,6 +2491,7 @@ $('photoView').addEventListener('click', e => {
   if(e.target.closest('.pv-close') || e.target.id === 'photoView') closePhoto();
 });
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePhoto(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheet(); });
 
 function whatsapp(){
   const p = price();
@@ -2431,6 +2504,152 @@ function whatsapp(){
     'Grand total: ' + inr(p.total)].join('\n');
   window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
 }
+
+
+/* ============================================================
+   INLINE EDITOR — change any choice from the quote page
+   ============================================================ */
+const EDIT_MAP = {
+  shape:      { title:'Shape', steps:[{ key:'layout', list:() => LAYOUTS }] },
+  storage:    { title:'Storage', units:true },
+  build:      { title:'Board and finish', build:true },
+  handles:    { title:'Handles', steps:[{ key:'handle', list:() => HANDLES }] },
+  worktop:    { title:'Worktop', steps:[{ key:'counter', list:() => COUNTERS, skip:'counter' }] },
+  backsplash: { title:'Backsplash', steps:[{ key:'backsplash', list:() => BACKSPLASH, skip:'backsplash' }] },
+  sink:       { title:'Sink', steps:[
+                  { key:'sinkMaterial', label:'Material', list:() => SINK_MATERIALS, skip:'sink', round:true },
+                  { key:'sinkType', label:'Bowl', list:() => SINK_TYPES, skip:'sink' }] },
+  tap:        { title:'Tap', steps:[{ key:'faucet', list:() => FAUCETS, skip:'faucet' }] },
+  hinges:     { title:'Hinges', steps:[
+                  { key:'hingeBrand', label:'Brand', list:() => HINGE_BRANDS },
+                  { key:'hingeFunction', label:'Function', list:() => HINGE_FUNCTIONS }] },
+  lighting:   { title:'Lighting', steps:[{ key:'lighting', list:() => LIGHTING, skip:'lighting' }] },
+  drawers:    { title:'Drawers', drawers:true }
+};
+
+function sheetPrice(key, id){
+  const p = price();
+  switch(key){
+    case 'layout': {
+      const r = runFor(id);
+      return round1(r.base) + ' ft base · ' + round1(r.wall) + ' ft wall';
+    }
+    case 'handle': return inr(RATES.handle[id]) + ' / door';
+    case 'counter': return RATES.counter[id] ? inr(RATES.counter[id]) + ' / sq ft' : 'Included';
+    case 'backsplash': return RATES.backsplash[id] ? inr(RATES.backsplash[id]) + ' / sq ft' : 'Included';
+    case 'sinkMaterial': return inr(RATES.sink[id][state.sinkType || DEFAULTS.sinkType]) + ' / sink';
+    case 'sinkType': return inr(RATES.sink[state.sinkMaterial || DEFAULTS.sinkMaterial][id]);
+    case 'faucet': return inr(RATES.faucet[id]);
+    case 'hingeBrand': return inr(RATES.hingeFn[state.hingeFunction || DEFAULTS.hingeFunction]) + ' / hinge';
+    case 'hingeFunction': return inr(RATES.hingeFn[id]) + ' / hinge';
+    case 'lighting': return inr(RATES.lighting[id]) + ' / project';
+    case 'finish': return inr(RATES.woodwork[state.board || DEFAULTS.board][id]) + ' / sq ft';
+    default: return '';
+  }
+}
+
+function sheetOption(key, o){
+  const on = state[key] === o.id;
+  return `<button type="button" class="sheet-opt${on ? ' on' : ''}" data-act="sheet-pick" data-k="${key}" data-id="${o.id}"${o.skip ? ` data-skip="${o.skip}"` : ''}>
+    <span class="so-name">${esc(o.name)}</span>
+    <span class="so-price">${esc(sheetPrice(key, o.id))}</span>
+    <span class="so-tick" aria-hidden="true">✓</span>
+  </button>`;
+}
+
+function sheetBody(k){
+  const cfg = EDIT_MAP[k];
+  if(!cfg) return '';
+  if(cfg.units){
+    return UNITS.map(u => {
+      const on = !!state.units[u.id];
+      return `<button type="button" class="sheet-opt${on ? ' on' : ''}" data-act="sheet-unit" data-id="${u.id}">
+        <span class="so-name">${esc(u.name)}</span>
+        <span class="so-price">${u.id === 'fridge' ? 'closes the gap' : 'carcass ' + (u.id === 'base' ? '×3' : u.id === 'wall' ? '×2' : '×' + (state.h - 7))}</span>
+        <span class="so-tick" aria-hidden="true">✓</span></button>`;
+    }).join('');
+  }
+  if(cfg.build){
+    const board = byId(BOARDS, state.board) || byId(BOARDS, DEFAULTS.board);
+    const seg = BOARDS.map(b => `<button type="button" class="segbtn${state.board === b.id ? ' on' : ''}" data-act="sheet-board" data-id="${b.id}">${esc(b.name)}</button>`).join('');
+    const fin = FINISHES.map(f => sheetOption('finish', f)).join('');
+    return `<div class="sheet-sub"><span class="ss-label">Board</span><div class="seg" style="flex:1">${seg}</div></div>
+      <div class="sheet-sub"><span class="ss-label">Finish</span></div>
+      <div class="sheet-grid">${fin}</div>
+      <button type="button" class="sheet-opt${state.glass ? ' on' : ''}" data-act="sheet-glass">
+        <span class="so-name">Glass shutters</span><span class="so-price">${inr(RATES.glass)} / sq ft · wall units</span>
+        <span class="so-tick" aria-hidden="true">✓</span></button>`;
+  }
+  if(cfg.drawers){
+    return DRAWERS.map(d => {
+      const q = Number(state.drawers[d.id]) || 0;
+      return `<div class="sheet-row${q ? ' on' : ''}">
+        <span class="sr-name">${esc(d.name)}<i>${esc(d.ds)}</i></span>
+        <span class="sr-price">${inr(RATES.drawers[d.id])}</span>
+        <span class="qty"><button type="button" data-act="sheet-qty" data-id="${d.id}" data-d="-1">−</button><b>${q}</b><button type="button" data-act="sheet-qty" data-id="${d.id}" data-d="1">+</button></span>
+      </div>`;
+    }).join('');
+  }
+  return cfg.steps.map(st => {
+    const head = st.label ? `<div class="sheet-sub"><span class="ss-label">${esc(st.label)}</span></div>` : '';
+    const opts = st.list().map(o => sheetOption(st.key, { ...o, skip: st.skip })).join('');
+    return head + `<div class="sheet-grid${st.round ? ' round' : ''}">${opts}</div>`;
+  }).join('');
+}
+
+function openSheet(k){
+  const cfg = EDIT_MAP[k];
+  if(!cfg) return;
+  $('sheetTitle').textContent = cfg.title;
+  $('sheetList').innerHTML = sheetBody(k);
+  $('sheetTotal').textContent = 'Quote ' + inr(price().total);
+  const sh = $('sheet');
+  sh.hidden = false;
+  sh.dataset.k = k;
+  document.body.classList.add('sheet-open');
+  requestAnimationFrame(() => sh.classList.add('in'));
+}
+function closeSheet(){
+  const sh = $('sheet');
+  if(!sh || sh.hidden) return;
+  sh.classList.remove('in');
+  document.body.classList.remove('sheet-open');
+  setTimeout(() => { sh.hidden = true; }, 180);
+}
+function refreshSheet(){
+  const sh = $('sheet');
+  if(!sh || sh.hidden) return;
+  draw();
+  const k = sh.dataset.k;
+  $('sheetList').innerHTML = sheetBody(k);
+  $('sheetTotal').textContent = 'Quote ' + inr(price().total);
+  openSheet(k);
+}
+
+
+/* sheet clicks live outside #stage, so they get their own listener */
+$('sheet').addEventListener('click', e => {
+  if(e.target === $('sheet')){ closeSheet(); return; }
+  const el = e.target.closest('[data-act]');
+  if(!el) return;
+  const a = el.dataset.act;
+  if(a === 'close-sheet'){ closeSheet(); return; }
+  if(a === 'sheet-pick'){
+    const k = el.dataset.k, id = el.dataset.id;
+    state[k] = id;
+    if(el.dataset.skip) state.skip[el.dataset.skip] = false;
+    if(k === 'counter' || k === 'backsplash' || k === 'lighting') state.skip[k] = false;
+    save(); refreshSheet(); return;
+  }
+  if(a === 'sheet-unit'){ state.units[el.dataset.id] = !state.units[el.dataset.id]; save(); refreshSheet(); return; }
+  if(a === 'sheet-board'){ state.board = el.dataset.id; save(); refreshSheet(); return; }
+  if(a === 'sheet-glass'){ state.glass = !state.glass; save(); refreshSheet(); return; }
+  if(a === 'sheet-qty'){
+    const id = el.dataset.id, d = Number(el.dataset.d);
+    state.drawers[id] = Math.max(0, Math.min(20, (Number(state.drawers[id]) || 0) + d));
+    save(); refreshSheet(); return;
+  }
+});
 
 if(/[?&]leads=1/.test(location.search)) drawLeads();
 else draw();
