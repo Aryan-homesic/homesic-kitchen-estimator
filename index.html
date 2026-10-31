@@ -1112,15 +1112,10 @@ html body .photo-view .pv-close{position:absolute;top:calc(14px + env(safe-area-
 .doc-top{margin-bottom:10px;align-items:center}
 .doc-headtext{display:flex;align-items:center;gap:10px;padding-left:46px;min-width:0}
 .doc-headtext h1{font-size:26px;line-height:1.15}
-.doc-kicon{flex:none;width:30px;height:30px;display:grid;place-items:center;border-radius:10px;
-  background:var(--accent-bg);color:var(--accent-d);border:1px solid var(--line2)}
-.doc-kicon svg{width:18px;height:18px;display:block}
 .qdoc{padding-top:2px}
 @media (max-width:430px){
   .doc-headtext h1{font-size:23px}
-  .doc-kicon{width:28px;height:28px}
-  .doc-kicon svg{width:17px;height:17px}
-}
+    }
 
 </style>
 </head>
@@ -2253,15 +2248,7 @@ function viewQuote(){
   return `<div class="qdoc">
     <div class="doc-top">
       <button class="doc-back" type="button" data-go="${state.step - 1}" aria-label="Back">←</button>
-      <div class="doc-headtext">
-        <h1 tabindex="-1">Your kitchen quote</h1>
-        <span class="doc-kicon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
-            <rect x="8" y="13" width="8" height="5" rx="1"/><path d="M8 15.5h8"/><path d="M11 10.5h2"/>
-          </svg>
-        </span>
-      </div>
+      <div class="doc-headtext"><h1 tabindex="-1">Your kitchen quote</h1></div>
       <div class="doc-acts">
         ${CONFIG.whatsapp ? '<button class="btn" type="button" data-act="wa">Share on WhatsApp</button>' : ''}
         ${cal ? `<a class="btn" href="${esc(cal)}" target="_blank" rel="noopener">Book a site visit →</a>` : ''}
