@@ -90,7 +90,7 @@ The other rates are still samples.
 - Glass profile with 5.5 mm shutter: 2100 / sq ft, **add-on for wall units only** — it is charged on
   the wall carcass area and sits on top of the board+finish rate, not instead of it. Disabled when
   wall units are off.
-- Handles (each): profile 1350, bar 950, groove 1600, knob 650; photos in `assets/handles/`.
+- Handles (per door): profile 250, standard 100, premium 250; photos in `assets/handles/`.
 - Countertop (per sq ft): granite 850, quartz 1250, full body 650, marble 1150.
 - Backsplash (per sq ft): ceramic 320, acrylic 520, mosaic 430.
 - Sink material (per sink): stainless 6200, granite 10500, quartz 9200.

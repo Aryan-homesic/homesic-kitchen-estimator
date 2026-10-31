@@ -19,9 +19,9 @@ Change a number there, save, reload — nothing else to touch.
 
 ## 3. Handles — ₹ per door
 
-| Profile | Bar pull | Groove | Knob |
-|---|---|---|---|
-| 600 | 400 | 150 | 400 |
+| Profile | Standard | Premium |
+|---|---|---|
+| 250 | 100 | 250 |
 
 Handles = number of doors (run ÷ 2 ft, rounded up) across base, wall and loft.
 

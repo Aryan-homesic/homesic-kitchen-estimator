@@ -653,7 +653,7 @@ const RATES = {
     bwp:   { laminate: 1900, acrylic: 2100, membrane: 2800, pu: 2800, veneer: 3200, rattan: 3200 }
   },
   glass: 2100,                                                // per sq ft, profile shutters
-  handle:     { profile: 600, bar: 400, groove: 150, knob: 400 }, // per door
+  handle:     { profile: 250, standard: 100, premium: 250 }, // per door
   counter:    { granite: 350, quartz: 650, tile: 500, marble: 700 }, // per sq ft
   backsplash: { ceramic: 150, acrylic: 650, mosaic: 250, paint: 50 },    // per sq ft
   // Sink is a material x type price, quoted per unit (like board x finish).
@@ -744,10 +744,9 @@ const FINISHES = [
   { id:'rattan',   name:'Rattan',   ds:'Woven texture', img:'finishes/rattan.jpg' }
 ];
 const HANDLES = [
-  { id:'profile', name:'Profile',  ds:'G-profile aluminium channel', img:'handles/profile.jpg', tag:'Popular' },
-  { id:'bar',     name:'Bar pull', ds:'Slim metal bar handle', img:'handles/bar.jpg' },
-  { id:'groove',  name:'Groove',   ds:'Recessed finger pull', img:'handles/groove.jpg' },
-  { id:'knob',    name:'Knob',     ds:'Round wood knob', img:'handles/knob.jpg' }
+  { id:'profile',  name:'Profile',  ds:'G-profile aluminium channel', img:'handles/profile.jpg', tag:'Popular' },
+  { id:'standard', name:'Standard', ds:'Everyday pull handle', img:'handles/bar.jpg' },
+  { id:'premium',  name:'Premium',  ds:'Longer, heavier pull', img:'handles/groove.jpg' }
 ];
 const COUNTERS = [
   { id:'granite', name:'Granite',   ds:'Natural stone', img:'card-counter-granite.jpg', tag:'Popular' },
