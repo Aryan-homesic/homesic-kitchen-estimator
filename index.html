@@ -1207,6 +1207,9 @@ html body .photo-view .pv-close{position:absolute;top:calc(14px + env(safe-area-
   .mc:not(.open){height:64px}
 }
 
+
+.mc-sub.is-booked{color:var(--accent-d);letter-spacing:.06em}
+
 </style>
 </head>
 <body>
@@ -2317,7 +2320,9 @@ function meetingCard(){
     <button class="mc-top" type="button" data-act="meet-toggle" aria-expanded="${open}" aria-controls="mcBody">
       <span class="mc-head">
         <span class="mc-title">Meet your designer</span>
-        <span class="mc-sub">${m.confirmed && m.date ? dayLabel(m.date) + ' · ' + m.time : 'Virtual or at the centre'}</span>
+        <span class="mc-sub${m.confirmed && m.date ? ' is-booked' : ''}">${m.confirmed && m.date
+          ? '\u2713 ' + dayLabel(m.date) + ' \u00b7 ' + m.time + (m.mode === 'centre' ? ' \u00b7 ' + m.city : '')
+          : 'Virtual or at the centre'}</span>
       </span>
       <span class="mc-chev" aria-hidden="true"></span>
     </button>
@@ -2822,7 +2827,15 @@ stage.addEventListener('click', e => {
     state.meetMonth = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
     save(); draw();
   }
-  else if(a === 'meet-confirm'){ const m = meetState(); m.confirmed = true; save(); draw(); }
+  else if(a === 'meet-confirm'){
+    const m = meetState();
+    m.confirmed = true;
+    m.open = false;                 // folds away on its own, leaving the booked slot on the bar
+    save(); draw();
+    // if the quote already went out, the booking goes out with it
+    if(state.lead && state.lead.delivery === 'pending') scheduleAutoSend();
+    else if(state.lead && state.lead.delivery === 'sent') queueResend();
+  }
   else if(a === 'meet-clear'){ const m = meetState(); m.confirmed = false; save(); draw(); }
   else if(a === 'edit') openSheet(act.dataset.k);
   else if(a === 'close-sheet') closeSheet();
@@ -2937,18 +2950,26 @@ stage.addEventListener('submit', e => {
 
 /* One email to the studio. Sent automatically a few minutes after the quote is shown,
    and re-sent with the feedback if the customer answers afterwards. */
-const AUTO_SEND_MS = 210000;          // 3.5 minutes
+const AUTO_SEND_MS = 120000;          // two minutes after the customer last touched the quote
 let autoSendTimer = null, resendTimer = null;
 
 function scheduleAutoSend(){
   clearTimeout(autoSendTimer);
   const lead = state.lead;
   if(!lead || lead.delivery !== 'pending' || !CONFIG.leadEndpoint) return;
-  const elapsed = Date.now() - new Date(lead.at).getTime();
+  // every call restarts the clock: the mail leaves two quiet minutes after the last touch
   autoSendTimer = setTimeout(() => {
     if(state.lead && state.lead.delivery === 'pending') sendQuote(true, { auto:true });
-  }, Math.max(4000, AUTO_SEND_MS - elapsed));
+  }, AUTO_SEND_MS);
 }
+/* any real interaction on the quote page pushes the send back */
+['pointerdown', 'keydown', 'input', 'change', 'wheel', 'touchstart'].forEach(evt => {
+  document.addEventListener(evt, () => {
+    if(!state.lead || state.lead.delivery !== 'pending') return;
+    if((STEPS[state.step] || {}).id !== 'quote') return;
+    scheduleAutoSend();
+  }, { passive: true });
+});
 function queueResend(){
   const lead = state.lead;
   if(!lead || lead.delivery !== 'sent' || !CONFIG.leadEndpoint) return;
@@ -2984,6 +3005,15 @@ function sendQuote(withFeedback, opts){
     '  Sink: ' + p.sinkMat.name + ', ' + p.sinkT.name + (state.skip.sink ? ' (skipped)' : '') + ' · Tap: ' + p.faucet.name + (state.skip.faucet ? ' (skipped)' : ''),
     '  Hinges: ' + p.hBrand.name + ' ' + p.hFn.name + ' · Lighting: ' + p.light.name + (state.skip.lighting ? ' (skipped)' : ''),
     p.glassOn ? '  Glass profile shutters: yes' : null,
+    '',
+    state.meet && state.meet.date && state.meet.time
+      ? (state.meet.confirmed ? 'MEETING (requested by the customer)' : 'MEETING (picked, not confirmed)')
+      : null,
+    state.meet && state.meet.date && state.meet.time
+      ? '  ' + (state.meet.mode === 'centre' ? 'Experience centre Â· ' + (state.meet.city || 'Gurugram') : 'Virtual meet (video call)')
+        + ' Â· ' + new Date(state.meet.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' })
+        + ' Â· ' + state.meet.time
+      : null,
     '',
     'PRICE',
     lines,
