@@ -1419,7 +1419,9 @@ function price(s = state){
   const skip = s.skip || {};
   const wallArea = wallOn ? info.wall * 2 : 0;
   const glassOn = !!s.glass && wallOn;
-  const CP = Math.round(carcass.total * spec.rate);
+  // glass shutters sit where the wall carcass would be, so that area leaves the woodwork bill
+  const woodArea = carcass.total - (glassOn ? carcass.wall : 0);
+  const CP = Math.round(woodArea * spec.rate);
   const HP  = Math.round(handles * RATES.handle[handle.id]);
   const CTP = (baseOn && !skip.counter) ? Math.round(info.base * COUNTER_DEPTH * RATES.counter[counter.id]) : 0;
   const BSP = skip.backsplash ? 0 : Math.round(info.grossBase * SPLASH_HEIGHT * RATES.backsplash[splash.id]);
@@ -1457,7 +1459,7 @@ function price(s = state){
 
   const lines = [];
   const add = (d, q, u, r, a) => { if(a > 0) lines.push({ d, q: round1(q), u, r: Math.round(r), a }); };
-  add('18 mm ' + spec.board.name + ' with ' + spec.finish.name + ' finish', carcass.total, 'sq ft', spec.rate, CP);
+  add('18 mm ' + spec.board.name + ' with ' + spec.finish.name + ' finish' + (glassOn ? ' · wall carcass swapped for glass' : ''), woodArea, 'sq ft', spec.rate, CP);
   if(GL > 0) add('Glass profile shutters · wall units', glassArea, 'sq ft', RATES.glass, GL);
   if(PVCP > 0) add('PVC legs (' + legs + ') + skirting (' + skirt + ' strip' + (skirt === 1 ? '' : 's') + ')', 1, 'set', PVCP, PVCP);
   add(handle.name + ' handles', handles, 'nos', RATES.handle[handle.id], HP);
@@ -1475,6 +1477,7 @@ function price(s = state){
     board: spec.board, finish: spec.finish, woodRate: spec.rate, glassOn: !!(s.glass && wallOn), glass: GL, glassArea,
     handle, counter, splash, sinkMat, sinkT, faucet, hBrand, hFn, light,
     lines, construction, design, total,
+    woodArea, glassOn,
     breakdown: { CP, GL, PVCP, HP, CTP, BSP, SP, HiP, LP, DP },
     assumed: !hasSize(s)
   };
@@ -1547,7 +1550,7 @@ function detailLines(step, o){
       if(o.id === 'tall') return ['≈ ' + inr(up) + ' incl. design', 'Fixed 4 sq ft carcass', 'No doors or handles'];
       return ['Saves ' + inr(Math.abs(up)), '−2 ft base, wall and splash', 'Loft run unchanged'];
     }
-    case 'board': return [inr(RATES.woodwork[o.id].laminate) + ' per sq ft with laminate', round1(p.carcass.total) + ' sq ft carcass'];
+    case 'board': return [inr(RATES.woodwork[o.id].laminate) + ' per sq ft with laminate', round1(p.woodArea || p.carcass.total) + ' sq ft carcass'];
     case 'handle': return [inr(RATES.handle[o.id]) + ' per handle', p.handles + ' handles · ' + inr(p.breakdown.HP)];
     case 'counter': return [inr(RATES.counter[o.id]) + ' per sq ft', round1(r.base * COUNTER_DEPTH) + ' sq ft · ' + inr(p.breakdown.CTP)];
     case 'backsplash': return [inr(RATES.backsplash[o.id]) + ' per sq ft', round1(r.grossBase * SPLASH_HEIGHT) + ' sq ft · ' + inr(p.breakdown.BSP)];
@@ -2304,7 +2307,9 @@ stage.addEventListener('click', e => {
       return;
     }
     if(kind === 'unit'){
-      state.units[id] = !state.units[id]; save();
+      state.units[id] = !state.units[id];
+      if(id === 'wall' && !state.units.wall) state.glass = false;   // nothing to glaze
+      save();
       const card = opt.closest('.fcard');
       if(card) card.classList.toggle('on', state.units[id]);
       opt.setAttribute('aria-pressed', state.units[id]);
@@ -2315,6 +2320,7 @@ stage.addEventListener('click', e => {
     }
     if(step.multi === 'units'){
       state.units[id] = !state.units[id];
+      if(id === 'wall' && !state.units.wall) state.glass = false;
       const card = opt.closest('.opt');
       card.classList.toggle('on', state.units[id]);
       opt.setAttribute('aria-pressed', state.units[id]);
@@ -2446,7 +2452,9 @@ stage.addEventListener('click', e => {
     if(k === 'counter' || k === 'backsplash' || k === 'lighting') state.skip[k === 'counter' ? 'counter' : k === 'backsplash' ? 'backsplash' : 'lighting'] = false;
     save(); refreshSheet();
   }
-  else if(a === 'sheet-unit'){ state.units[act.dataset.id] = !state.units[act.dataset.id]; save(); refreshSheet(); }
+  else if(a === 'sheet-unit'){ state.units[act.dataset.id] = !state.units[act.dataset.id];
+    if(act.dataset.id === 'wall' && !state.units.wall) state.glass = false;
+    save(); refreshSheet(); }
   else if(a === 'sheet-board'){ state.board = act.dataset.id; save(); refreshSheet(); }
   else if(a === 'sheet-glass'){ state.glass = !state.glass; save(); refreshSheet(); }
   else if(a === 'sheet-qty'){
@@ -2847,7 +2855,9 @@ $('sheet').addEventListener('click', e => {
     if(k === 'counter' || k === 'backsplash' || k === 'lighting') state.skip[k] = false;
     save(); refreshSheet(); return;
   }
-  if(a === 'sheet-unit'){ state.units[el.dataset.id] = !state.units[el.dataset.id]; save(); refreshSheet(); return; }
+  if(a === 'sheet-unit'){ state.units[el.dataset.id] = !state.units[el.dataset.id];
+    if(el.dataset.id === 'wall' && !state.units.wall) state.glass = false;
+    save(); refreshSheet(); return; }
   if(a === 'sheet-board'){ state.board = el.dataset.id; save(); refreshSheet(); return; }
   if(a === 'sheet-glass'){ state.glass = !state.glass; save(); refreshSheet(); return; }
   if(a === 'sheet-qty'){
