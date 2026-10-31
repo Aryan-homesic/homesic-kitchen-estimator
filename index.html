@@ -1430,6 +1430,16 @@ function closePhoto(){
   });
   window.addEventListener('mouseup', () => { dragging = false; });
 
+/* keep the quote's open sections open across re-renders */
+stage.addEventListener('toggle', e => {
+  const t = e.target;
+  if(!t || t.tagName !== 'DETAILS' || !t.isConnected) return;   // ignore the ones being replaced
+  const key = t.id === 'accPicks' ? 'picks' : t.id === 'accBill' ? 'bill' : null;
+  if(!key) return;
+  state.acc = Object.assign({ picks:false, bill:false }, state.acc || {});
+  state.acc[key] = !!t.open;
+  save();
+}, true);
 stage.addEventListener('click', e => {
     if(pv.moved){ pv.moved = false; return; }   // a drag is not a close
     if(pv.scale > 1.01){ pvReset(); e.stopPropagation(); }
@@ -2382,7 +2392,7 @@ function quoteCard(p){
       </div>
     </div>
 
-    <details class="qc-acc" id="accPicks">
+    <details class="qc-acc" id="accPicks"${(state.acc || {}).picks ? ' open' : ''}>
       <summary>
         <span class="qa-ico" aria-hidden="true">✎</span>
         <span class="qa-text"><b>Modify changes</b><i>Tap any box to change it</i></span>
@@ -2398,7 +2408,7 @@ function quoteCard(p){
       </div>
     </details>
 
-    <details class="qc-acc" id="accBill">
+    <details class="qc-acc" id="accBill"${(state.acc || {}).bill ? ' open' : ''}>
       <summary>
         <span class="qa-ico" aria-hidden="true">≡</span>
         <span class="qa-text"><b>Price breakdown</b><i>Every line, before the 5% design fee</i></span>
@@ -2496,12 +2506,25 @@ function draw(){
   document.body.classList.toggle('light', step.id === 'details');
   document.body.classList.toggle('doc', step.id === 'quote');
   document.body.classList.toggle('build', step.id === 'build');
+  // remember which quote sections are open, so a re-render doesn't shut them
+  const keepOpen = {};
+  ['accPicks', 'accBill'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) keepOpen[id] = el.open;
+  });
+  if('accPicks' in keepOpen || 'accBill' in keepOpen){
+    state.acc = { picks: !!keepOpen.accPicks, bill: !!keepOpen.accBill };
+  }
   stage.innerHTML = step.id === 'start' ? viewStart()
     : step.id === 'size' ? viewSize()
     : step.id === 'build' ? viewBuild(step)
     : step.id === 'details' ? viewDetails()
     : step.id === 'quote' ? viewQuote()
     : viewOptions(step);
+  ['accPicks', 'accBill'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && keepOpen[id]) el.open = true;
+  });
   // never leave an option looking blurred because the browser deferred decoding
   stage.querySelectorAll('img').forEach(im => {
     im.loading = 'eager';
