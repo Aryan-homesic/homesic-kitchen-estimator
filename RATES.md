@@ -31,7 +31,7 @@ Handles = number of doors (run ÷ 2 ft, rounded up) across base, wall and loft.
 |---|---|
 | 300 | 600 |
 
-Brands offered: **Hettich · Moda · Doorset** (preference only).
+Brands offered: **Hettich · Moda · Dorset** (preference only).
 
 Hinges = handles × 2.
 

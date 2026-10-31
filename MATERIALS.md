@@ -126,7 +126,7 @@ Rates depend on the function only; the brand is a preference.
 |---|---|
 | Hettich | none |
 | Moda | none |
-| Doorset | none |
+| Dorset | none |
 
 Quantity: hinges = doors × 2.
 

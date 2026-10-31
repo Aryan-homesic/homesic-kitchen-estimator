@@ -128,7 +128,7 @@ Ratio is what the UI crops to; give the generator at least the long edge listed
 | `assets/hardware-push-open.jpg` | Handleless door with a fingertip pressing the corner, motion lines | 4:3 |
 | `assets/hardware-hettich.jpg` | Drawer pulled open in three-quarter view, side runner visible | 4:3 |
 | `assets/hardware-moda.jpg` | Same drawer view, different runner detail and a rose wash handle | 4:3 |
-| `assets/hardware-doorset.jpg` | Same drawer view, heavier box profile, deeper hatch shadow | 4:3 |
+| `assets/hardware-dorset.jpg` | Same drawer view, heavier box profile, deeper hatch shadow | 4:3 |
 
 ### 8 · Lighting
 

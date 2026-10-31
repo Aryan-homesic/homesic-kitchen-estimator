@@ -66,7 +66,7 @@ Homesic Estimator (single page, one flow)
 ├── 7 · Sink & tap ─────────────────────────┬─ Sink material: SS · granite · quartz · ceramic
 │                                           ├─ Bowl type: single · double · double+drainboard · worktop
 │                                           └─ Tap: standard · premium · designer
-├── 8 · Hinges ─────────────────────────────┬─ Brand: Hettich · Moda · Doorset
+├── 8 · Hinges ─────────────────────────────┬─ Brand: Hettich · Moda · Dorset
 │                                           └─ Function: soft-close · push-to-open
 ├── 9 · Lighting ──────────────────────────── standard · premium · elite (flat per project)
 ├── 10 · Drawers ──────────────────────────── normal · jali · tandem (counts, optional)

@@ -95,7 +95,7 @@ The other rates are still samples.
 - Backsplash (per sq ft): tiles 200, already existing 0.
 - Sink material (per sink): stainless 6200, granite 10500, quartz 9200.
 - Faucet (each): standard 1000, premium 2000, designer 4000.
-- Hinges (per hinge, function only): soft-close 300, push-to-open 600. Brands Hettich, Moda, Doorset.
+- Hinges (per hinge, function only): soft-close 300, push-to-open 600. Brands Hettich, Moda, Dorset.
   Godrej 320/370/420 for standard/soft-close/push-to-open.
 - Lighting (per project, flat): standard 10,000, premium 20,000, elite 30,000.
 - Drawers (each): normal channel 2000, jali + channels 3000, Innotech tandem 4000.
