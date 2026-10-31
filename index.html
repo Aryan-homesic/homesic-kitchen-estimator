@@ -923,6 +923,11 @@ body.sheet-open{overflow:hidden}
 .tgrid.w16 .fcard{border-radius:16px}
 .tgrid.w16 .zoom{left:8px;right:auto;top:auto;bottom:8px}
 
+
+/* glass add-on thumbnail */
+.aico-img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex:none;border:1px solid var(--line2)}
+.addon.on .aico-img{border-color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -1562,7 +1567,7 @@ function viewBuild(step){
     <div class="bhead">Finish <span>tap ⤢ to see the photo full size</span></div>
     <div class="fgrid" role="group" aria-label="Finish">${fgrid}</div>
     <button type="button" class="addon${g ? ' on' : ''}" data-act="glass" aria-pressed="${g}"${wallOn ? '' : ' disabled'}>
-      <span class="aico" aria-hidden="true">✓</span>
+      <img class="aico-img" src="${A}glass-shutter.jpg" alt="" loading="lazy">
       <span class="acopy"><b>Glass profile shutters</b><span>${wallOn ? 'Wall units only · 5.5 mm · ' + inr(RATES.glass) + ' / sq ft' : 'Add wall units to use glass'}</span></span>
       ${wallOn ? `<span class="aamt">+${inr(glassAmt)}</span>` : ''}
     </button>
