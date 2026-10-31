@@ -1107,6 +1107,21 @@ html body .photo-view .pv-close{position:absolute;top:calc(14px + env(safe-area-
   width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(20,14,16,.7);
   color:#fff;font-size:18px;display:grid;place-items:center;z-index:9001;cursor:pointer}
 
+
+/* quote title: kitchen mark sits beside the heading, tight against the card */
+.doc-top{margin-bottom:10px;align-items:center}
+.doc-headtext{display:flex;align-items:center;gap:10px;padding-left:46px;min-width:0}
+.doc-headtext h1{font-size:26px;line-height:1.15}
+.doc-kicon{flex:none;width:30px;height:30px;display:grid;place-items:center;border-radius:10px;
+  background:var(--accent-bg);color:var(--accent-d);border:1px solid var(--line2)}
+.doc-kicon svg{width:18px;height:18px;display:block}
+.qdoc{padding-top:2px}
+@media (max-width:430px){
+  .doc-headtext h1{font-size:23px}
+  .doc-kicon{width:28px;height:28px}
+  .doc-kicon svg{width:17px;height:17px}
+}
+
 </style>
 </head>
 <body>
@@ -1471,7 +1486,12 @@ if(state.layout && !valid(LAYOUTS, state.layout)) state.layout = '';
   if(state[k] && !valid(list, state[k])) state[k] = '';
 });
 
-const save = () => { try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} };
+const save = () => {
+  try {
+    state.stepId = (STEPS[state.step] || {}).id || '';
+    localStorage.setItem(STORE, JSON.stringify(state));
+  } catch(e){}
+};
 
 /* ============================================================
    LEADS (localStorage)
@@ -1735,6 +1755,14 @@ const STEPS = [
 const LAST = STEPS.length - 1;
 const SKIP_GROUP = {};
 const SIZE = STEPS.findIndex(s => s.id === 'size');
+
+// a step saved by an older build can point at nothing (or the wrong screen)
+// a step saved by an older build can point at nothing (or the wrong screen)
+if(state.stepId){
+  const byStepId = STEPS.findIndex(s => s.id === state.stepId);
+  state.step = byStepId >= 0 ? byStepId : (Number(state.step) || 0);
+}
+state.step = Math.max(0, Math.min(STEPS.length - 1, Number(state.step) || 0));
 const DETAILS = STEPS.findIndex(s => s.id === 'details');
 
 function complete(i = state.step){
@@ -1752,7 +1780,7 @@ function complete(i = state.step){
 }
 function isOn(step, id){
   if(step.multi === 'units') return !!state.units[id];
-  if(step.multi === 'dwr') return (Number(state.drawers[id]) || 0) > 0;
+  if(step.multi === 'dwr') return (Number(state.drawers[id]) || 0) > 0;   // any number of types can be on
   return state[step.key] === id;
 }
 const sizeOk = () => hasSize() && Number(state.h) > 0;
@@ -2225,8 +2253,14 @@ function viewQuote(){
   return `<div class="qdoc">
     <div class="doc-top">
       <button class="doc-back" type="button" data-go="${state.step - 1}" aria-label="Back">←</button>
-      <div class="doc-headtext"><h1 tabindex="-1">Your kitchen quote</h1>
-        <p class="delivery ${state.lead.delivery || 'local'}">${state.lead.delivery === 'failed' ? 'Your request is saved on this device.' : 'Saved on this device.'}</p>
+      <div class="doc-headtext">
+        <h1 tabindex="-1">Your kitchen quote</h1>
+        <span class="doc-kicon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
+            <rect x="8" y="13" width="8" height="5" rx="1"/><path d="M8 15.5h8"/><path d="M11 10.5h2"/>
+          </svg>
+        </span>
       </div>
       <div class="doc-acts">
         ${CONFIG.whatsapp ? '<button class="btn" type="button" data-act="wa">Share on WhatsApp</button>' : ''}
@@ -2271,6 +2305,7 @@ function drawLeads(){
    RENDER + NAVIGATION
    ============================================================ */
 function draw(){
+  if(!STEPS[state.step]) state.step = Math.max(0, Math.min(STEPS.length - 1, Number(state.step) || 0));
   const step = STEPS[state.step];
   stage.classList.remove('out', 'in');
   // a new step always opens at its top, never where the last one ended
@@ -2292,6 +2327,12 @@ function draw(){
     : step.id === 'details' ? viewDetails()
     : step.id === 'quote' ? viewQuote()
     : viewOptions(step);
+  // never leave an option looking blurred because the browser deferred decoding
+  stage.querySelectorAll('img').forEach(im => {
+    im.loading = 'eager';
+    if(im.decode) im.decode().catch(() => {});
+  });
+  requestAnimationFrame(() => stage.classList.remove('out', 'in'));
   updateSize();
   updateBar();
   const h = stage.querySelector('h1');
@@ -2306,12 +2347,16 @@ function transition(change, dir = 1){
   stage.style.setProperty('--d', dir);
   stage.classList.add('out');
   setTimeout(() => {
-    change(); save(); draw();
-    stage.classList.remove('out');
-    stage.classList.add('in');
-    void stage.offsetWidth;
-    stage.classList.remove('in');
-    busy = false;
+    try {
+      change(); save(); draw();
+    } finally {
+      // the screen must never be left faded or blurred, even if a render fails
+      stage.classList.remove('out');
+      stage.classList.add('in');
+      void stage.offsetWidth;
+      stage.classList.remove('in');
+      busy = false;
+    }
   }, 240);
 }
 function go(n){
@@ -2364,7 +2409,7 @@ function updateBar(){
   $('total').textContent = inr(p.total);
   $('estLbl').textContent = p.assumed ? 'Assumed room' : 'Estimated price';
   $('dock').classList.toggle('gone', i >= DETAILS);
-  $('dockStep').textContent = STEPS[i].eyebrow || '';
+  $('dockStep').textContent = (STEPS[i] || {}).eyebrow || '';
   const total = LAST;
   const no = $('stepNo');
   if(no) no.textContent = (i >= 1 && i < DETAILS) ? 'Step ' + i + ' of ' + total : '';
@@ -2396,6 +2441,11 @@ stage.addEventListener('click', e => {
     if(busy) return;
     const step = STEPS[state.step], id = opt.dataset.pick;
     const kind = opt.dataset.kind;
+    // drawer rows: tap to add a type, tap again to remove · several can be on at once
+    if(step && step.counted && !kind){
+      state.drawers[id] = (Number(state.drawers[id]) || 0) > 0 ? 0 : 1;
+      save(); draw(); return;
+    }
     if(kind === 'board'){
       state.board = id; save();
       stage.querySelectorAll('.segbtn').forEach(b => {
