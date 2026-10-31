@@ -2271,6 +2271,14 @@ function drawLeads(){
 function draw(){
   const step = STEPS[state.step];
   stage.classList.remove('out', 'in');
+  // a new step always opens at its top, never where the last one ended
+  if(draw.lastStep !== state.step){
+    stage.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    if(document.scrollingElement) document.scrollingElement.scrollTop = 0;
+    draw.lastStep = state.step;
+  }
   closePhoto();
   document.body.classList.toggle('start', step.id === 'start');
   document.body.classList.toggle('light', step.id === 'details');
