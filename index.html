@@ -916,6 +916,13 @@ body.sheet-open{overflow:hidden}
   background:var(--frame)}
 @media (max-width:430px){ .size-hero{border-radius:14px} .size-hero figcaption{font-size:11px;padding:8px 12px} }
 
+
+/* layout cards follow the shape sheet: wide 16:9 frames */
+.tgrid.w16 .fimg{aspect-ratio:7/4;background:var(--paper)}
+.tgrid.w16 .fimg img{object-fit:cover;padding:0}
+.tgrid.w16 .fcard{border-radius:16px}
+.tgrid.w16 .zoom{left:8px;right:auto;top:auto;bottom:8px}
+
 </style>
 </head>
 <body>
@@ -1429,7 +1436,7 @@ function detailLines(step, o){
 const STEPS = [
   { id:'start' },
   { id:'size', eyebrow:'Size', title:'How big is the room?' },
-  { id:'layout', key:'layout', square:true, eyebrow:'Shape', title:'Pick your kitchen shape', opts:LAYOUTS, hint:'The shape closest to your room sets the runs.' },
+  { id:'layout', key:'layout', tiles:true, w16:true, eyebrow:'Shape', title:'Pick your kitchen shape', opts:LAYOUTS, hint:'The shape closest to your room sets the runs.' },
   { id:'units', hero:'storage/hero.jpg', eyebrow:'Storage', title:'How much storage?', opts:UNITS, c:3, cm:2, rh:200, rhm:112, multi:'units', hint:'Base, wall and loft are on by default.' },
   { id:'build', eyebrow:'Build', title:'Board and finish', hint:'One rate per sq ft covers both.' },
   { id:'handle', key:'handle', square:true, eyebrow:'Handles', title:'Choose the handles', opts:HANDLES, hint:'How you open the doors.' },
@@ -1636,7 +1643,7 @@ function viewOptions(step){
         <span class="fmeta"><span class="fname">${esc(o.name)}</span><span class="frate">${label}</span></span>
       </button>`;
     }).join('');
-    return `${headHtml(step, action)}${hero}<div class="tgrid${step.tiles ? ' wide' : ''}" role="group" aria-label="${esc(step.title)}">${tiles}</div>`;
+    return `${headHtml(step, action)}${hero}<div class="tgrid${step.tiles ? ' wide' : ''}${step.w16 ? ' w16' : ''}" role="group" aria-label="${esc(step.title)}">${tiles}</div>`;
   }
   return `${headHtml(step, action)}
     ${hero}
