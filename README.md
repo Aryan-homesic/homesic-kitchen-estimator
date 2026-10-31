@@ -9,7 +9,7 @@ python3 -m http.server 8777   # open http://127.0.0.1:8777
 ## Flow
 
 Start → size → shape → units → board & finish → handles → worktop & backsplash → sink material →
-sink type → faucet → hinge brand → hinge function → lighting → accessories → details → quote.
+sink type → faucet → hinge brand → hinge function → lighting → drawers → details → quote.
 
 Size comes first so every run, unit price and the dock estimate are based on the real room from the
 second screen on.
@@ -66,8 +66,8 @@ CTP = (base run × 2) × countertop rate
 BSP = (gross base length × 2) × backsplash rate
 SP  = sink material rate × sink type multiplier + faucet rate
 HiP = hinges × hinge rate (brand × function)
-LP  = gross base length × lighting rate
-AP  = Σ accessory count × accessory rate
+LP  = lighting rate (flat per project)
+DP  = Σ drawer count × drawer rate
 Grand total = CP + GL + HP + CTP + BSP + SP + HiP + LP + AP, plus 5% design charge
 ```
 
@@ -90,15 +90,15 @@ The other rates are still samples.
 - Glass profile with 5.5 mm shutter: 2100 / sq ft, **add-on for wall units only** — it is charged on
   the wall carcass area and sits on top of the board+finish rate, not instead of it. Disabled when
   wall units are off.
-- Handles (per door): profile 250, standard 100, premium 250; photos in `assets/handles/`.
-- Countertop (per sq ft): granite 850, quartz 1250, full body 650, marble 1150.
-- Backsplash (per sq ft): ceramic 320, acrylic 520, mosaic 430.
+- Handles (per door): profile 250, standard 100, premium 250, designer 500, groove 0 (included).
+- Countertop (per sq ft): granite 700, quartz 1100, only installation 300, already existing 0.
+- Backsplash (per sq ft): tiles 200, already existing 0.
 - Sink material (per sink): stainless 6200, granite 10500, quartz 9200.
-- Faucet (each): lever 3100, pull-out 6200, filter 8200, wall-mounted 4200.
-- Hinges (per hinge, brand × function): Hettich 520/580/640, Innotech 390/450/510,
+- Faucet (each): standard 1000, premium 2000, designer 4000.
+- Hinges (per hinge, function only): soft-close 300, push-to-open 600. Brands Hettich, Moda, Doorset.
   Godrej 320/370/420 for standard/soft-close/push-to-open.
-- Lighting (per running ft): internal 650, internal + external + outlets 1350, complete 2200.
-- Accessories (each): magic corner 16000, wicker 4200, cutlery 3200, bottle 3400.
+- Lighting (per project, flat): standard 10,000, premium 20,000, elite 30,000.
+- Drawers (each): normal channel 2000, jali + channels 3000, Innotech tandem 4000.
 
 Glass is an add-on over the woodwork rate, priced on the wall carcass area (33 sq ft for the 10 × 8
 default, so ₹69,300 before the design share). Everything else is unchanged.

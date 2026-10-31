@@ -653,9 +653,9 @@ const RATES = {
     bwp:   { laminate: 1900, acrylic: 2100, membrane: 2800, pu: 2800, veneer: 3200, rattan: 3200 }
   },
   glass: 2100,                                                // per sq ft, profile shutters
-  handle:     { profile: 250, standard: 100, premium: 250 }, // per door
-  counter:    { granite: 350, quartz: 650, tile: 500, marble: 700 }, // per sq ft
-  backsplash: { ceramic: 150, acrylic: 650, mosaic: 250, paint: 50 },    // per sq ft
+  handle:     { profile: 250, standard: 100, premium: 250, designer: 500, groove: 0 }, // per door
+  counter:    { granite: 700, quartz: 1100, install: 300, existing: 0 }, // per sq ft
+  backsplash: { tiles: 200, existing: 0 },    // per sq ft
   // Sink is a material x type price, quoted per unit (like board x finish).
   sink: {
     ss:      { single: 7200,  double: 15600, doubletray: 21600, tray: 12000 },
@@ -664,11 +664,12 @@ const RATES = {
     ceramic: { single: 18000, double: 33600, doubletray: 46200, tray: 30600 }
   },
   pvc:        { leg: 50, skirting: 3000 },                    // per leg / per strip
-  faucet:     { lever: 4200, pullout: 7200, wall: 1800, double: 3600 }, // per faucet
+  faucet:     { standard: 1000, premium: 2000, designer: 4000 }, // per faucet
   // Hinge price depends on the function only; the brand is a preference, not a price.
-  hingeFn:    { standard: 250, soft: 400, push: 600 },       // per hinge
-  lighting:   { internal: 145, external: 520, complete: 700, outlets: 260 }, // per running ft
-  accessory:  { magic: 21600, wicker: 5400, cutlery: 1440, bottle: 3600 }
+  hingeFn:    { soft: 300, push: 600 },       // per hinge
+  drawers:    { normal: 2000, jali: 3000, tandem: 4000 },     // per drawer
+  lighting:   { standard: 10000, premium: 20000, elite: 30000 }, // per project
+  accessoryRemoved: true
 };
 const DESIGN_PCT = 0.05;
 const DOOR_WIDTH = 2;        // ft
@@ -746,19 +747,19 @@ const FINISHES = [
 const HANDLES = [
   { id:'profile',  name:'Profile',  ds:'G-profile aluminium channel', img:'handles/profile.jpg', tag:'Popular' },
   { id:'standard', name:'Standard', ds:'Everyday pull handle', img:'handles/bar.jpg' },
-  { id:'premium',  name:'Premium',  ds:'Longer, heavier pull', img:'handles/groove.jpg' }
+  { id:'premium',  name:'Premium',  ds:'Longer, heavier pull', img:'handles/groove.jpg' },
+  { id:'designer', name:'Designer', ds:'Statement handle', img:'handles/knob.jpg' },
+  { id:'groove',   name:'Groove',   ds:'Recessed finger pull, included', img:'handles/profile.jpg' }
 ];
 const COUNTERS = [
-  { id:'granite', name:'Granite',   ds:'Natural stone', img:'card-counter-granite.jpg', tag:'Popular' },
-  { id:'quartz',  name:'Quartz',    ds:'Non-porous', img:'card-counter-quartz.jpg' },
-  { id:'tile',    name:'Full body', ds:'Full-body tile', img:'card-counter-full-body-tile.jpg' },
-  { id:'marble',  name:'Marble',    ds:'Polished natural stone', img:'card-counter-granite.jpg' }
+  { id:'granite',  name:'Granite',           ds:'Natural stone', img:'card-counter-granite.jpg', tag:'Popular' },
+  { id:'quartz',   name:'Quartz',            ds:'Non-porous', img:'card-counter-quartz.jpg' },
+  { id:'install',  name:'Only installation', ds:'You supply the slab, we fit it', img:'card-counter-full-body-tile.jpg' },
+  { id:'existing', name:'Already existing',  ds:'Keeping the current worktop' }
 ];
 const BACKSPLASH = [
-  { id:'ceramic', name:'Ceramic', ds:'Glazed tile', img:'backsplash-ceramic.jpg', tag:'Popular' },
-  { id:'acrylic', name:'Acrylic', ds:'Seamless panel', img:'backsplash-acrylic.jpg' },
-  { id:'mosaic',  name:'Mosaic',  ds:'Small-format tiles', img:'backsplash-mosaic.jpg' },
-  { id:'paint',   name:'Paint',   ds:'Brushed lacquer finish', img:'card-spray-painted.jpg' }
+  { id:'tiles',    name:'Tiles',            ds:'Glazed tile splashback', img:'backsplash-ceramic.jpg', tag:'Popular' },
+  { id:'existing', name:'Already existing', ds:'Keeping the current tiles' }
 ];
 const SINK_MATERIALS = [
   { id:'ss',      name:'Stainless steel', ds:'Hygienic and easy to clean', img:'sinks/material-ss.jpg', tag:'Popular' },
@@ -773,34 +774,30 @@ const SINK_TYPES = [
   { id:'tray',       name:'Worktop sink',           ds:'Bowl with a draining board', img:'sinks/type-doubletray.jpg' }
 ];
 const FAUCETS = [
-  { id:'lever',   name:'Single handle', ds:'One lever for flow and heat', img:'faucets/single.jpg', tag:'Popular' },
-  { id:'pullout', name:'Pull out',      ds:'Flexible spray head', img:'faucets/pullout.jpg' },
-  { id:'wall',    name:'Wall tap',      ds:'Mounted on the backsplash', img:'faucets/wall.jpg' },
-  { id:'double',  name:'Double handle', ds:'Separate hot and cold', img:'faucets/double.jpg' }
+  { id:'standard', name:'Standard', ds:'Single lever, everyday use', img:'faucets/single.jpg', tag:'Popular' },
+  { id:'premium',  name:'Premium',  ds:'Two-handle, brass body', img:'faucets/double.jpg' },
+  { id:'designer', name:'Designer', ds:'Pull-out spray head', img:'faucets/pullout.jpg' }
 ];
 const HINGE_BRANDS = [
-  { id:'hettich',  name:'Hettich',  ds:'German-engineered precision', img:'hardware-hettich.jpg', tag:'Popular' },
-  { id:'innotech', name:'Innotech', ds:'Strong drawer systems', img:'hardware-innotech.jpg' },
-  { id:'godrej',   name:'Godrej',   ds:'Reliable everyday hardware', img:'hardware-godrej.jpg' },
-  { id:'ebco',     name:'Ebco',     ds:'Value hardware, widely stocked', img:'hardware-ebco.jpg' }
+  { id:'hettich', name:'Hettich', ds:'German-engineered precision', img:'hardware-hettich.jpg', tag:'Popular' },
+  { id:'moda',    name:'Moda',    ds:'Soft-close hinge' },
+  { id:'doorset', name:'Doorset', ds:'Value hardware, widely stocked' }
 ];
 const HINGE_FUNCTIONS = [
-  { id:'standard', name:'Standard',     ds:'Everyday hinges', img:'hardware-standard.jpg' },
-  { id:'soft',     name:'Soft-close',   ds:'No slamming', img:'hardware-soft-close.jpg', tag:'Popular' },
-  { id:'push',     name:'Push-to-open', ds:'Handle-free fronts', img:'hardware-push-open.jpg'}
+  { id:'soft', name:'Soft-close',   ds:'No slamming', img:'hardware-soft-close.jpg', tag:'Popular' },
+  { id:'push', name:'Push-to-open', ds:'Handle-free fronts', img:'hardware-push-open.jpg' }
 ];
 const LIGHTING = [
-  { id:'internal', name:'Internal',                   ds:'Inside cupboards', img:'lighting-internal.jpg', tag:'Popular' },
-  { id:'external', name:'Internal + external + outlets', ds:'Under-cabinet task light and points', img:'lighting-internal-external-outlets.jpg' },
-  { id:'complete', name:'Complete + concealed',       ds:'Ambient, task and accent lighting', img:'lighting-complete.jpg' },
-  { id:'outlets',  name:'Only outlets',               ds:'Power points, no lights', img:'lighting-outlets.jpg' }
+  { id:'standard', name:'Standard', ds:'Internal lighting only', img:'lighting-internal.jpg', tag:'Popular' },
+  { id:'premium',  name:'Premium',  ds:'Internal + external + outlets', img:'lighting-internal-external-outlets.jpg' },
+  { id:'elite',    name:'Elite',    ds:'Complete lighting + concealed outlets', img:'lighting-complete.jpg' }
 ];
-const ACCESSORIES = [
-  { id:'magic',   name:'Magic corner',   ds:'Pull-out corner shelves', img:'accessory-magic-corner.jpg' },
-  { id:'wicker',  name:'Wicker basket',  ds:'Ventilated produce storage', img:'accessory-wicker-basket.jpg' },
-  { id:'cutlery', name:'Cutlery tray',   ds:'Organised compartments', img:'accessory-cutlery-tray.jpg' },
-  { id:'bottle',  name:'Bottle pull-out', ds:'Slim pull-out rack', img:'accessory-bottle-pullout.jpg' }
+const DRAWERS = [
+  { id:'normal', name:'Normal channel',  ds:'Drawer box on standard channels', img:'storage/unit-base.jpg' },
+  { id:'jali',   name:'Jali + channels', ds:'Wire-basket drawer on channels', img:'storage/unit-wall.jpg' },
+  { id:'tandem', name:'Innotech tandem', ds:'Soft-close tandem runners', img:'storage/unit-tall.jpg', tag:'Popular' }
 ];
+
 
 /* ============================================================
    STATE
@@ -810,8 +807,8 @@ const LEADS = 'homesic.leads.v1';
 const DEFAULTS = {
   units: { base:true, wall:true, loft:true, tall:false, fridge:false },
   board:'hdhmr', finish:'laminate', handle:'profile', counter:'granite',
-  backsplash:'ceramic', sinkMaterial:'ss', sinkType:'single',
-  faucet:'lever', hingeBrand:'innotech', hingeFunction:'soft', lighting:'internal'
+  backsplash:'tiles', sinkMaterial:'ss', sinkType:'single',
+  faucet:'standard', hingeBrand:'hettich', hingeFunction:'soft', lighting:'standard'
 };
 const fresh = () => ({
   step: 0, layout:'', l:'', b:'', h:'9',
@@ -819,7 +816,7 @@ const fresh = () => ({
   board:'', finish:'', handle:'', counter:'', backsplash:'',
   sinkMaterial:'', sinkType:'', faucet:'',
   hingeBrand:'', hingeFunction:'', lighting:'',
-  acc: { magic:0, wicker:0, cutlery:0, bottle:0 },
+  drawers: { normal:0, jali:0, tandem:0 },
   skip: { counter:false, backsplash:false, sink:false, faucet:false, lighting:false },
   glass: false,
   fb: { tags: [], budget: null, touched: false },
@@ -831,7 +828,7 @@ try {
   if(saved) Object.assign(state, saved);
 } catch(e) {}
 state.units = Object.assign({ ...DEFAULTS.units }, state.units || {});
-state.acc = Object.assign({ magic:0, wicker:0, cutlery:0, bottle:0 }, state.acc || {});
+state.drawers = Object.assign({ normal:0, jali:0, tandem:0 }, state.drawers || {});
 state.skip = Object.assign({ counter:false, backsplash:false, sink:false, faucet:false, lighting:false }, state.skip || {});
 state.glass = state.glass === true;
 state.fb = Object.assign({ tags: [], budget: null, touched: false }, state.fb || {});
@@ -943,19 +940,19 @@ function price(s = state){
   const faucetAmt = skip.faucet ? 0 : RATES.faucet[faucet.id] * FAUCET_COUNT;
   const SP  = Math.round(sinkAmt + faucetAmt);
   const HiP = Math.round(hinges * RATES.hingeFn[hFn.id]);
-  const LP  = skip.lighting ? 0 : Math.round(info.grossBase * RATES.lighting[light.id]);
-  const acc = s.acc || {};
-  let AP = 0;
-  const accItems = [];
-  ACCESSORIES.forEach(a => {
-    const q = Math.max(0, Math.round(Number(acc[a.id]) || 0));
+  const LP  = skip.lighting ? 0 : Math.round(RATES.lighting[light.id]);
+  const dwr = s.drawers || {};
+  let DP = 0;
+  const dwrItems = [];
+  DRAWERS.forEach(d => {
+    const q = Math.max(0, Math.round(Number(dwr[d.id]) || 0));
     if(q > 0){
-      const amount = q * RATES.accessory[a.id];
-      AP += amount;
-      accItems.push({ a, q, amount });
+      const amount = q * RATES.drawers[d.id];
+      DP += amount;
+      dwrItems.push({ d, q, amount });
     }
   });
-  AP = Math.round(AP);
+  DP = Math.round(DP);
 
   // Glass profile shutters replace the finish on the wall units.
   const glassArea = glassOn ? wallArea : 0;
@@ -966,7 +963,7 @@ function price(s = state){
   const skirt = baseOn ? Math.ceil(info.base / 10) : 0;
   const PVCP = Math.round(legs * RATES.pvc.leg + skirt * RATES.pvc.skirting);
 
-  const construction = CP + GL + PVCP + HP + CTP + BSP + SP + HiP + LP + AP;
+  const construction = CP + GL + PVCP + HP + CTP + BSP + SP + HiP + LP + DP;
   const design = Math.round(construction * DESIGN_PCT);
   const total = construction + design;
 
@@ -981,8 +978,8 @@ function price(s = state){
   if(!skip.sink) add('Sink · ' + sinkMat.name + ' · ' + sinkT.name, 1, 'set', sinkRate, Math.round(sinkRate));
   if(!skip.faucet) add(faucet.name, FAUCET_COUNT, 'nos', RATES.faucet[faucet.id], Math.round(RATES.faucet[faucet.id] * FAUCET_COUNT));
   add('Hinges · ' + hBrand.name + ' ' + hFn.name, hinges, 'nos', RATES.hingeFn[hFn.id], HiP);
-  if(!skip.lighting) add(light.name + ' lighting', info.grossBase, 'rft', RATES.lighting[light.id], LP);
-  accItems.forEach(({ a, q, amount }) => add(a.name, q, 'nos', RATES.accessory[a.id], amount));
+  if(!skip.lighting) add(light.name + ' lighting', 1, 'project', RATES.lighting[light.id], LP);
+  dwrItems.forEach(({ d, q, amount }) => add(d.name + ' drawers', q, 'nos', RATES.drawers[d.id], amount));
   add('Design charge (' + Math.round(DESIGN_PCT * 100) + '%)', 1, '', design, design);
 
   return {
@@ -990,7 +987,7 @@ function price(s = state){
     board: spec.board, finish: spec.finish, woodRate: spec.rate, glassOn: !!(s.glass && wallOn), glass: GL, glassArea,
     handle, counter, splash, sinkMat, sinkT, faucet, hBrand, hFn, light,
     lines, construction, design, total,
-    breakdown: { CP, GL, PVCP, HP, CTP, BSP, SP, HiP, LP, AP },
+    breakdown: { CP, GL, PVCP, HP, CTP, BSP, SP, HiP, LP, DP },
     assumed: !hasSize(s)
   };
 }
@@ -1032,16 +1029,16 @@ function optLabel(step, o){
       return '≈ ' + inr(up) + ' · 4 sq ft';
     }
     case 'board': return inr(RATES.woodwork[o.id].laminate) + ' / sq ft';
-    case 'handle': return inr(RATES.handle[o.id]) + ' each';
-    case 'counter': return inr(RATES.counter[o.id]) + ' / sq ft';
-    case 'backsplash': return inr(RATES.backsplash[o.id]) + ' / sq ft';
+    case 'handle': return RATES.handle[o.id] ? inr(RATES.handle[o.id]) + ' each' : 'Included';
+    case 'counter': return RATES.counter[o.id] ? inr(RATES.counter[o.id]) + ' / sq ft' : 'Included';
+    case 'backsplash': return RATES.backsplash[o.id] ? inr(RATES.backsplash[o.id]) + ' / sq ft' : 'Included';
     case 'sinkMaterial': return inr(RATES.sink[o.id][(state.sinkType || DEFAULTS.sinkType)]) + ' / sink';
     case 'sinkType': return inr(RATES.sink[(state.sinkMaterial || DEFAULTS.sinkMaterial)][o.id]);
     case 'faucet': return inr(RATES.faucet[o.id]);
     case 'hingeBrand': return inr(RATES.hingeFn[fn.id]) + ' / hinge';
     case 'hingeFunction': return inr(RATES.hingeFn[o.id]) + ' / hinge';
-    case 'lighting': return inr(RATES.lighting[o.id]) + ' / ft';
-    case 'accessories': return inr(RATES.accessory[o.id]) + ' each';
+    case 'lighting': return inr(RATES.lighting[o.id]) + ' / project';
+    case 'drawers': return inr(RATES.drawers[o.id]) + ' each';
   }
   return '';
 }
@@ -1071,10 +1068,11 @@ function detailLines(step, o){
     case 'faucet': return [inr(RATES.faucet[o.id]) + ' each', FAUCET_COUNT + ' faucet in this quote'];
     case 'hingeBrand': return [inr(RATES.hingeFn[fn.id]) + ' per hinge', p.hinges + ' hinges · ' + inr(p.breakdown.HiP)];
     case 'hingeFunction': return [inr(RATES.hingeFn[o.id]) + ' per hinge', p.hinges + ' hinges · ' + inr(p.breakdown.HiP)];
-    case 'lighting': return [inr(RATES.lighting[o.id]) + ' per ft', round1(r.grossBase) + ' ft · ' + inr(p.breakdown.LP)];
-    case 'accessories': {
-      const q = Number(state.acc[o.id]) || 0;
-      return [inr(RATES.accessory[o.id]) + ' each', (q || 0) + ' in this quote · ' + inr(q * RATES.accessory[o.id])];
+    case 'lighting': return [inr(RATES.lighting[o.id]) + ' per project', 'priced once for the kitchen'];
+    case 'drawers': {
+      const q = Number(state.drawers[o.id]) || 0;
+      const r = RATES.drawers[o.id];
+      return [inr(r) + ' each', (q || 0) + ' in this quote · ' + inr(q * r)];
     }
   }
   return [];
@@ -1104,7 +1102,7 @@ const STEPS = [
     { key:'hingeFunction', label:'Function', opts:HINGE_FUNCTIONS }
   ] },
   { id:'lighting', key:'lighting', square:true, eyebrow:'Lighting', title:'Choose the lighting', opts:LIGHTING, hint:'Task and ambient light.' },
-  { id:'accessories', eyebrow:'Accessories', title:'Add accessories', opts:ACCESSORIES, c:4, cm:2, rh:270, rhm:165, multi:'acc', counted:true, hint:'Optional. Set the count for each one.' },
+  { id:'drawers', eyebrow:'Drawers', title:'Add drawer units', opts:DRAWERS, c:3, cm:1, rh:240, rhm:132, multi:'dwr', counted:true, hint:'Set how many of each type you need. Optional.' },
   { id:'details', eyebrow:'Details' },
   { id:'quote', eyebrow:'Quote' }
 ];
@@ -1128,7 +1126,7 @@ function complete(i = state.step){
 }
 function isOn(step, id){
   if(step.multi === 'units') return !!state.units[id];
-  if(step.multi === 'acc') return (Number(state.acc[id]) || 0) > 0;
+  if(step.multi === 'dwr') return (Number(state.drawers[id]) || 0) > 0;
   return state[step.key] === id;
 }
 const sizeOk = () => hasSize() && Number(state.h) > 0;
@@ -1150,7 +1148,7 @@ function visual(o){
 function optionCard(step, o, i){
   const on = isOn(step, o.id);
   const label = optLabel(step, o);
-  const q = step.counted ? (Number(state.acc[o.id]) || 0) : 0;
+  const q = step.counted ? (Number(state.drawers[o.id]) || 0) : 0;
   const detail = step.counted ? '' : `<span class="detail" aria-hidden="true"><b>${esc(o.name)}</b>${detailLines(step, o).map(t => `<span>${esc(t)}</span>`).join('')}</span>`;
   const inner = `<span class="ph">${visual(o)}${o.img ? `<span class="zoom" data-act="view" data-img="${o.img}" data-name="${esc(o.name)}" role="button" aria-label="View ${esc(o.name)} photo full size">⤢</span>` : ''}</span>
     <span class="meta">
@@ -1226,7 +1224,7 @@ function viewOptions(step){
   } else if(step.multi === 'units'){
     action = `<button class="btn" type="button" data-go="${state.step + 1}" ${complete(state.step) ? '' : 'disabled'}>Continue →</button>`;
   } else if(step.multi === 'acc'){
-    const any = Object.values(state.acc).some(n => Number(n) > 0);
+    const any = Object.values(state.drawers).some(n => Number(n) > 0);
     action = `<button class="btn" type="button" data-go="${state.step + 1}">${any ? 'Continue →' : 'Skip →'}</button>`;
   } else if(SKIP_GROUP[step.id]){
     action = `<button class="btn line" type="button" data-act="skip" data-group="${SKIP_GROUP[step.id]}">Skip</button>`;
@@ -1426,6 +1424,10 @@ function feedbackHtml(p){
     <p class="fb-status${sent ? ' ok' : ''}">${status}</p>
   </section>`;
 }
+function drawerSummary(p){
+  const d = state.drawers || {};
+  return DRAWERS.filter(x => Number(d[x.id]) > 0).map(x => d[x.id] + ' \u00d7 ' + x.name.toLowerCase()).join(' \u00b7 ') || 'none';
+}
 function groupedBill(p){
   const rows = [];
   const add = (label, detail, amount) => { if(amount > 0) rows.push({ label, detail, amount }); };
@@ -1438,14 +1440,14 @@ function groupedBill(p){
   add('Backsplash', p.splash.name + ', ' + Math.round(p.run.gross * 2) + ' sq ft', p.breakdown.BSP);
   add('Sink and tap', p.sinkMat.name + ' · ' + p.sinkT.name + ' · ' + p.faucet.name, p.breakdown.SP);
   add('Lighting', p.light.name, p.breakdown.LP);
-  add('Accessories', 'pull-outs and baskets', p.breakdown.AP);
+  add('Drawers', drawerSummary(p), p.breakdown.DP);
   add('Design charge 5%', '', p.design);
   return rows;
 }
 function quotePdfData(p){
   const layout = byId(LAYOUTS, state.layout) || byId(LAYOUTS, 'lshape');
   const units = UNITS.filter(u => state.units[u.id]).map(u => u.name).join(' + ');
-  const accs = ACCESSORIES.filter(a => Number(state.acc[a.id]) > 0).map(a => a.name + ' × ' + state.acc[a.id]).join(', ');
+  const dwrLine = drawerSummary(p);
   return {
     ref: state.lead ? state.lead.id : 'DRAFT',
     dateStr: state.lead ? new Date(state.lead.at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '',
@@ -1461,7 +1463,7 @@ function quotePdfData(p){
       state.skip.faucet ? null : ['Tap', p.faucet.name],
       ['Hinges', p.hBrand.name + ' · ' + p.hFn.name],
       state.skip.lighting ? null : ['Lighting', p.light.name],
-      accs ? ['Accessories', accs] : null
+      dwrLine !== 'none' ? ['Drawers', dwrLine] : null
     ].filter(Boolean),
     rows: groupedBill(p),
     construction: p.construction, total: p.total,
@@ -1483,8 +1485,7 @@ async function downloadQuote(btn){
 function quoteCard(p){
   const layout = byId(LAYOUTS, state.layout) || byId(LAYOUTS, 'lshape');
   const units = UNITS.filter(u => state.units[u.id]).map(u => u.name).join(' + ');
-  const accs = ACCESSORIES.filter(a => Number(state.acc[a.id]) > 0)
-    .map(a => a.name + ' × ' + state.acc[a.id]).join(', ');
+  const dwrLine = drawerSummary(p);
   const picks = [
     ['Shape', layout.name + ' · ' + state.l + ' × ' + state.b + ' × ' + state.h + ' ft'],
     ['Storage', units],
@@ -1496,7 +1497,7 @@ function quoteCard(p){
     state.skip.faucet ? null : ['Tap', p.faucet.name],
     ['Hinges', p.hBrand.name + ' · ' + p.hFn.name],
     state.skip.lighting ? null : ['Lighting', p.light.name],
-    accs ? ['Accessories', accs] : null
+    dwrLine !== 'none' ? ['Drawers', dwrLine] : null
   ].filter(Boolean);
   const rows = groupedBill(p);
   const date = state.lead && state.lead.at
@@ -1663,7 +1664,7 @@ function chosen(st){
     return names.length ? names.join(' + ') : '';
   }
   if(st.multi === 'acc'){
-    const n = ACCESSORIES.reduce((t, a) => t + (Number(state.acc[a.id]) || 0), 0);
+    const n = DRAWERS.reduce((t, a) => t + (Number(state.drawers[a.id]) || 0), 0);
     return n ? n + ' items' : '';
   }
   if(st.key){
@@ -1782,16 +1783,16 @@ stage.addEventListener('click', e => {
     }
     if(step.multi === 'acc'){
       const card = opt.closest('.opt');
-      state.acc[id] = (Number(state.acc[id]) || 0) > 0 ? 0 : 1;
-      card.classList.toggle('on', state.acc[id] > 0);
-      opt.setAttribute('aria-pressed', state.acc[id] > 0);
+      state.drawers[id] = (Number(state.drawers[id]) || 0) > 0 ? 0 : 1;
+      card.classList.toggle('on', state.drawers[id] > 0);
+      opt.setAttribute('aria-pressed', state.drawers[id] > 0);
       const span = card.querySelector('.qty span');
-      if(span) span.textContent = state.acc[id];
+      if(span) span.textContent = state.drawers[id];
       const det = card.querySelector('.detail span:last-child');
-      if(det) det.textContent = state.acc[id] + ' in this quote · ' + inr(state.acc[id] * RATES.accessory[id]);
+      if(det) det.textContent = state.drawers[id] + ' in this quote · ' + inr(state.drawers[id] * RATES.drawers[id]);
       updateBar();
       const btn = document.querySelector('.head-action .btn');
-      if(btn) btn.textContent = ACCESSORIES.some(a => Number(state.acc[a.id]) > 0) ? 'Continue →' : 'Skip →';
+      if(btn) btn.textContent = DRAWERS.some(a => Number(state.drawers[a.id]) > 0) ? 'Continue →' : 'Skip →';
       save();
       return;
     }
@@ -1807,19 +1808,19 @@ stage.addEventListener('click', e => {
   const qty = e.target.closest('[data-act="qty"]');
   if(qty){
     const id = qty.dataset.id;
-    const n = Math.max(0, Math.min(9, (Number(state.acc[id]) || 0) + Number(qty.dataset.d)));
-    state.acc[id] = n;
+    const n = Math.max(0, Math.min(20, (Number(state.drawers[id]) || 0) + Number(qty.dataset.d)));
+    state.drawers[id] = n;
     const card = qty.closest('.opt');
     const span = card.querySelector('.qty span');
     if(span) span.textContent = n;
     const det = card.querySelector('.detail span:last-child');
-    if(det) det.textContent = n + ' in this quote · ' + inr(n * RATES.accessory[id]);
+    if(det) det.textContent = n + ' in this quote · ' + inr(n * RATES.drawers[id]);
     card.classList.toggle('on', n > 0);
     const hit = card.querySelector('[data-pick]');
     if(hit) hit.setAttribute('aria-pressed', n > 0);
     updateBar();
     const btn = document.querySelector('.head-action .btn');
-    if(btn) btn.textContent = ACCESSORIES.some(a => Number(state.acc[a.id]) > 0) ? 'Continue →' : 'Skip →';
+    if(btn) btn.textContent = DRAWERS.some(a => Number(state.drawers[a.id]) > 0) ? 'Continue →' : 'Skip →';
     save();
     return;
   }
@@ -1963,7 +1964,7 @@ stage.addEventListener('submit', e => {
       board: state.board, finish: state.finish, glass: !!state.glass, handle: state.handle, counter: state.counter,
       backsplash: state.backsplash, sinkMaterial: state.sinkMaterial, sinkType: state.sinkType,
       faucet: state.faucet, hingeBrand: state.hingeBrand, hingeFunction: state.hingeFunction,
-      lighting: state.lighting, acc: state.acc
+      lighting: state.lighting, drawers: state.drawers
     },
     breakdown: p.breakdown
   };
