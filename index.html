@@ -729,7 +729,7 @@ body:not(.start) .backdrop::after{background:linear-gradient(180deg,rgba(248,241
 .trust li::before{color:var(--accent)}
 
 /* one CTA per screen: the dock carries it */
-.head .head-action .btn{display:none}
+.head .head-action .btn:not(.line){display:none}
 
 /* card image is a banner, not a square: less catalogue chrome, more photo */
 .ugrid .ph,.tgrid .ph{aspect-ratio:4/3}
@@ -1026,12 +1026,7 @@ const RATES = {
   counter:    { granite: 700, quartz: 1100, install: 300, existing: 0 }, // per sq ft
   backsplash: { tiles: 200, existing: 0 },    // per sq ft
   // Sink is a material x type price, quoted per unit (like board x finish).
-  sink: {
-    ss:      { single: 7200,  double: 15600, doubletray: 21600, tray: 12000 },
-    granite: { single: 9600,  double: 21800, doubletray: 30100, tray: 16400 },
-    quartz:  { single: 8400,  double: 19200, doubletray: 26400, tray: 14400 },
-    ceramic: { single: 18000, double: 33600, doubletray: 46200, tray: 30600 }
-  },
+  sinkType: { single: 7200, double: 15600, doubletray: 21600, tray: 12000 },  // per set, whatever the material
   pvc:        { leg: 50, skirting: 3000 },                    // per leg / per strip
   faucet:     { standard: 1000, premium: 2000, designer: 4000 }, // per faucet
   // Hinge price depends on the function only; the brand is a preference, not a price.
@@ -1123,12 +1118,10 @@ const HANDLES = [
 const COUNTERS = [
   { id:'granite',  name:'Granite',           ds:'Natural stone', img:'card-counter-granite.jpg', tag:'Popular' },
   { id:'quartz',   name:'Quartz',            ds:'Non-porous', img:'card-counter-quartz.jpg' },
-  { id:'install',  name:'Only installation', ds:'You supply the slab, we fit it', img:'card-counter-install.jpg' },
-  { id:'existing', name:'Already existing',  ds:'Keep the worktop you have', skip:true }
+  { id:'install',  name:'Only installation', ds:'You supply the slab, we fit it', img:'card-counter-install.jpg' }
 ];
 const BACKSPLASH = [
-  { id:'tiles',    name:'Tiles',            ds:'Glazed tile splashback', img:'backsplash-tiles.jpg', tag:'Popular' },
-  { id:'existing', name:'Already existing', ds:'Keep the tiles you have', skip:true }
+  { id:'tiles',    name:'Tiles',            ds:'Glazed tile splashback', img:'backsplash-tiles.jpg', tag:'Popular' }
 ];
 const SINK_MATERIALS = [
   { id:'ss',      name:'Stainless steel', ds:'Hygienic and easy to clean', img:'sinks/material-ss.jpg', tag:'Popular' },
@@ -1143,9 +1136,9 @@ const SINK_TYPES = [
   { id:'tray',       name:'Worktop sink',           ds:'Bowl with a draining board', img:'sinks/type-doubletray.jpg' }
 ];
 const FAUCETS = [
-  { id:'standard', name:'Standard', ds:'Single lever, everyday use', img:'faucets/single.jpg', tag:'Popular' },
+  { id:'standard', name:'Standard', ds:'Everyday wall-mounted tap', img:'faucets/wall.jpg', tag:'Popular' },
   { id:'premium',  name:'Premium',  ds:'Two-handle, brass body', img:'faucets/double.jpg' },
-  { id:'designer', name:'Designer', ds:'Pull-out spray head', img:'faucets/pullout.jpg' }
+  { id:'designer', name:'Designer', ds:'Single lever, pull-down spout', img:'faucets/single.jpg' }
 ];
 const HINGE_BRANDS = [
   { id:'hettich', name:'Hettich', ds:'German-engineered precision', img:'hardware-hettich.jpg', tag:'Popular' },
@@ -1304,7 +1297,7 @@ function price(s = state){
   const HP  = Math.round(handles * RATES.handle[handle.id]);
   const CTP = (baseOn && !skip.counter) ? Math.round(info.base * COUNTER_DEPTH * RATES.counter[counter.id]) : 0;
   const BSP = skip.backsplash ? 0 : Math.round(info.grossBase * SPLASH_HEIGHT * RATES.backsplash[splash.id]);
-  const sinkRate = RATES.sink[sinkMat.id][sinkT.id];
+  const sinkRate = RATES.sinkType[sinkT.id];
   const sinkAmt = skip.sink ? 0 : sinkRate;
   const faucetAmt = skip.faucet ? 0 : RATES.faucet[faucet.id] * FAUCET_COUNT;
   const SP  = Math.round(sinkAmt + faucetAmt);
@@ -1401,8 +1394,8 @@ function optLabel(step, o){
     case 'handle': return RATES.handle[o.id] ? inr(RATES.handle[o.id]) + ' each' : 'Included';
     case 'counter': return RATES.counter[o.id] ? inr(RATES.counter[o.id]) + ' / sq ft' : 'Skip';
     case 'backsplash': return RATES.backsplash[o.id] ? inr(RATES.backsplash[o.id]) + ' / sq ft' : 'Skip';
-    case 'sinkMaterial': return inr(RATES.sink[o.id][(state.sinkType || DEFAULTS.sinkType)]) + ' / sink';
-    case 'sinkType': return inr(RATES.sink[(state.sinkMaterial || DEFAULTS.sinkMaterial)][o.id]);
+    case 'sinkMaterial': return '';
+    case 'sinkType': return inr(RATES.sinkType[o.id]);
     case 'faucet': return inr(RATES.faucet[o.id]);
     case 'hingeBrand': return inr(RATES.hingeFn[fn.id]) + ' / hinge';
     case 'hingeFunction': return inr(RATES.hingeFn[o.id]) + ' / hinge';
@@ -1432,8 +1425,8 @@ function detailLines(step, o){
     case 'handle': return [inr(RATES.handle[o.id]) + ' per handle', p.handles + ' handles · ' + inr(p.breakdown.HP)];
     case 'counter': return [inr(RATES.counter[o.id]) + ' per sq ft', round1(r.base * COUNTER_DEPTH) + ' sq ft · ' + inr(p.breakdown.CTP)];
     case 'backsplash': return [inr(RATES.backsplash[o.id]) + ' per sq ft', round1(r.grossBase * SPLASH_HEIGHT) + ' sq ft · ' + inr(p.breakdown.BSP)];
-    case 'sinkMaterial': return [inr(RATES.sink[o.id][p.sinkT.id]) + ' per sink', 'for a ' + p.sinkT.name.toLowerCase()];
-    case 'sinkType': return [inr(RATES.sink[p.sinkMat.id][o.id]) + ' per set', 'in ' + p.sinkMat.name];
+    case 'sinkMaterial': return ['looks only', 'the price is set by the bowl type'];
+    case 'sinkType': return [inr(RATES.sinkType[o.id]) + ' per set', 'any material'];
     case 'faucet': return [inr(RATES.faucet[o.id]) + ' each', FAUCET_COUNT + ' faucet in this quote'];
     case 'hingeBrand': return [inr(RATES.hingeFn[fn.id]) + ' per hinge', p.hinges + ' hinges · ' + inr(p.breakdown.HiP)];
     case 'hingeFunction': return [inr(RATES.hingeFn[o.id]) + ' per hinge', p.hinges + ' hinges · ' + inr(p.breakdown.HiP)];
@@ -1457,14 +1450,14 @@ const STEPS = [
   { id:'units', hero:'storage/hero.jpg', eyebrow:'Storage', title:'How much storage?', opts:UNITS, c:3, cm:2, rh:200, rhm:112, multi:'units', hint:'Base, wall and loft are on by default.' },
   { id:'build', eyebrow:'Build', title:'Board and finish', hint:'One rate per sq ft covers both.' },
   { id:'handle', key:'handle', square:true, eyebrow:'Handles', title:'Choose the handles', opts:HANDLES, hint:'How you open the doors.' },
-  { id:'surfaces', eyebrow:'Surfaces', title:'Worktop and backsplash', hint:'Pick both, or skip either one.', allowGroupSkip:true, groups:[
+  { id:'surfaces', eyebrow:'Surfaces', title:'Worktop and backsplash', hint:'One rate per square foot, fitted.', groups:[
     { key:'counter', label:'Worktop', opts:COUNTERS },
     { key:'backsplash', label:'Backsplash', opts:BACKSPLASH }
   ] },
   { id:'basin', eyebrow:'Sink', title:'Sink and faucet', hint:'Pick a material, a bowl type and a tap.', skipKey:'sink', groups:[
     { key:'sinkMaterial', label:'Material', opts:SINK_MATERIALS },
     { key:'sinkType', label:'Type', opts:SINK_TYPES },
-    { key:'faucet', label:'Faucet', opts:FAUCETS, skip:'faucet' }
+    { key:'faucet', label:'Faucet', opts:FAUCETS }
   ] },
   { id:'hinge', eyebrow:'Hinges', title:'Hinge brand and function', hint:'Who makes them, and how the doors close.', dynamic:true, groups:[
     { key:'hingeBrand', label:'Brand', opts:HINGE_BRANDS },
@@ -1476,7 +1469,7 @@ const STEPS = [
   { id:'quote', eyebrow:'Quote' }
 ];
 const LAST = STEPS.length - 1;
-const SKIP_GROUP = { faucet:'faucet', lighting:'lighting' };
+const SKIP_GROUP = {};
 const SIZE = STEPS.findIndex(s => s.id === 'size');
 const DETAILS = STEPS.findIndex(s => s.id === 'details');
 
@@ -1626,9 +1619,9 @@ function viewOptions(step){
       const tiles = g.opts.map(o => {
         const on = state[g.key] === o.id;
         const label = isMat
-          ? inr(RATES.sink[o.id][state.sinkType || DEFAULTS.sinkType]) + ' / sink'
+          ? ''
           : g.key === 'sinkType'
-            ? inr(RATES.sink[state.sinkMaterial || DEFAULTS.sinkMaterial][o.id])
+            ? inr(RATES.sinkType[o.id])
             : optLabel({ id: g.key, key: g.key, opts: g.opts }, o);
         const media = o.img
           ? `<img src="${A}${o.img}" alt="" onerror="this.style.display='none'">
@@ -1973,6 +1966,7 @@ function drawLeads(){
    ============================================================ */
 function draw(){
   const step = STEPS[state.step];
+  stage.classList.remove('out', 'in');
   closePhoto();
   document.body.classList.toggle('start', step.id === 'start');
   document.body.classList.toggle('light', step.id === 'details');
@@ -2230,7 +2224,11 @@ stage.addEventListener('click', e => {
   const a = act.dataset.act;
   if(a === 'skip'){
     const g = act.dataset.group;
-    if(g){ state.skip[g] = true; save(); go(state.step + 1); }
+    if(g){
+      state.skip[g] = true;
+      if(g === 'sink') state.skip.faucet = true;
+      save(); go(state.step + 1);
+    }
   }
   else if(a === 'fb'){
     const id = act.dataset.id;
@@ -2575,8 +2573,8 @@ function sheetPrice(key, id){
     case 'handle': return inr(RATES.handle[id]) + ' / door';
     case 'counter': return RATES.counter[id] ? inr(RATES.counter[id]) + ' / sq ft' : 'Included';
     case 'backsplash': return RATES.backsplash[id] ? inr(RATES.backsplash[id]) + ' / sq ft' : 'Included';
-    case 'sinkMaterial': return inr(RATES.sink[id][state.sinkType || DEFAULTS.sinkType]) + ' / sink';
-    case 'sinkType': return inr(RATES.sink[state.sinkMaterial || DEFAULTS.sinkMaterial][id]);
+    case 'sinkMaterial': return '';
+    case 'sinkType': return inr(RATES.sinkType[id]);
     case 'faucet': return inr(RATES.faucet[id]);
     case 'hingeBrand': return inr(RATES.hingeFn[state.hingeFunction || DEFAULTS.hingeFunction]) + ' / hinge';
     case 'hingeFunction': return inr(RATES.hingeFn[id]) + ' / hinge';
