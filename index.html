@@ -1038,6 +1038,34 @@ body.sheet-open{overflow:hidden}
   .foot-act{width:100%;justify-content:space-between;font-size:12px}
 }
 
+
+/* quote accordion + pick boxes: pink family, not amber */
+.qc-acc{border-color:#F4DCE2;background:#FFF8F9}
+.qc-acc summary:hover{background:#FDF0F3}
+.qa-ico{background:#FBE3E9;color:#C4708A}
+.qa-n{background:#FBE3E9;color:#C4708A}
+.qa-chev{border-color:#C4708A}
+.qc-acc[open] summary{border-bottom-color:#F4DCE2}
+.pick{border-color:#F4DCE2}
+.pick:hover{border-color:#E8A9B5;box-shadow:0 10px 22px -18px rgba(196,112,138,.9)}
+.pk-lab{color:#A89097}
+.pick .qc-edit{border-color:#F4DCE2;background:#FDF0F3;color:#C4708A}
+.pick .qc-edit:hover{border-color:#E8A9B5;background:#FBE3E9}
+
+/* dock must never overflow, whatever the price label says */
+.dock{max-width:calc(100vw - 16px)}
+.dock-bar{min-width:0}
+.est{min-width:0;flex:1 1 auto}
+.est #estLbl{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.dock-go{flex:none}
+@media (max-width:430px){
+  .dock-bar{padding:6px 10px 6px 6px;gap:2px}
+  .dock-cur{padding:4px 6px}
+  .dock-sep{margin:0 3px}
+  .est #estLbl{display:none}
+  .est b{font-size:16px}
+}
+
 </style>
 </head>
 <body>
@@ -2010,7 +2038,7 @@ function quoteCard(p){
     <details class="qc-acc" id="accPicks">
       <summary>
         <span class="qa-ico" aria-hidden="true">✎</span>
-        <span class="qa-text"><b>What you picked</b><i>Tap any box to change it</i></span>
+        <span class="qa-text"><b>Modify changes</b><i>Tap any box to change it</i></span>
         <span class="qa-n">${picks.length}</span>
         <span class="qa-chev" aria-hidden="true"></span>
       </summary>
@@ -2190,7 +2218,7 @@ function updateBar(){
   const i = state.step, p = price();
   $('back').disabled = i <= 1;
   $('total').textContent = inr(p.total);
-  $('estLbl').textContent = p.assumed ? 'Estimated price · assumed room' : 'Estimated price';
+  $('estLbl').textContent = p.assumed ? 'Assumed room' : 'Estimated price';
   $('dock').classList.toggle('gone', i >= DETAILS);
   $('dockStep').textContent = STEPS[i].eyebrow || '';
   const total = LAST;
