@@ -928,6 +928,10 @@ body.sheet-open{overflow:hidden}
 .aico-img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex:none;border:1px solid var(--line2)}
 .addon.on .aico-img{border-color:var(--accent)}
 
+
+/* rate, not a computed total, on the glass row */
+.addon .aamt small{font-size:10px;letter-spacing:.2px;opacity:.75;margin-left:2px;font-weight:500}
+
 </style>
 </head>
 <body>
@@ -1560,7 +1564,7 @@ function viewBuild(step){
     </button>`;
   }).join('');
   const wallOn = !!state.units.wall;
-  const glassAmt = wallOn ? (runInfo().wall * 2) * RATES.glass * (1 + DESIGN_PCT) : 0;
+  
   const g = state.glass && wallOn;
   return `${headHtml(step, action)}
     <div class="bsec"><span class="blabel">Board</span><div class="seg" role="group" aria-label="Board">${seg}</div></div>
@@ -1568,8 +1572,8 @@ function viewBuild(step){
     <div class="fgrid" role="group" aria-label="Finish">${fgrid}</div>
     <button type="button" class="addon${g ? ' on' : ''}" data-act="glass" aria-pressed="${g}"${wallOn ? '' : ' disabled'}>
       <img class="aico-img" src="${A}glass-shutter.jpg" alt="" loading="lazy">
-      <span class="acopy"><b>Glass profile shutters</b><span>${wallOn ? 'Wall units only · 5.5 mm · ' + inr(RATES.glass) + ' / sq ft' : 'Add wall units to use glass'}</span></span>
-      ${wallOn ? `<span class="aamt">+${inr(glassAmt)}</span>` : ''}
+      <span class="acopy"><b>Glass profile shutters</b><span>${wallOn ? 'Wall units only · 5.5 mm' : 'Add wall units to use glass'}</span></span>
+      ${wallOn ? `<span class="aamt">${inr(RATES.glass)}<small>/ sq ft</small></span>` : ''}
     </button>
     ${boardCompareHtml()}`;
 }
