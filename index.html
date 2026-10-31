@@ -932,6 +932,14 @@ body.sheet-open{overflow:hidden}
 /* rate, not a computed total, on the glass row */
 .addon .aamt small{font-size:10px;letter-spacing:.2px;opacity:.75;margin-left:2px;font-weight:500}
 
+
+/* "already existing" reads as a skip, not a missing photo */
+.ph-skip{display:grid;place-content:center;justify-items:center;gap:6px;width:100%;height:100%;min-height:120px;
+  padding:14px;text-align:center;background:var(--frame);border:1.5px dashed var(--line2);border-radius:12px}
+.ph-skip b{font-family:var(--serif);font-size:22px;color:var(--accent-d);letter-spacing:-.2px}
+.ph-skip i{font-style:normal;font-size:11.5px;color:var(--muted);line-height:1.35;max-width:16ch}
+.fcard.on .ph-skip{border-color:var(--accent);background:var(--accent-bg)}
+
 </style>
 </head>
 <body>
@@ -1115,12 +1123,12 @@ const HANDLES = [
 const COUNTERS = [
   { id:'granite',  name:'Granite',           ds:'Natural stone', img:'card-counter-granite.jpg', tag:'Popular' },
   { id:'quartz',   name:'Quartz',            ds:'Non-porous', img:'card-counter-quartz.jpg' },
-  { id:'install',  name:'Only installation', ds:'You supply the slab, we fit it', img:'card-counter-full-body-tile.jpg' },
-  { id:'existing', name:'Already existing',  ds:'Keeping the current worktop' }
+  { id:'install',  name:'Only installation', ds:'You supply the slab, we fit it', img:'card-counter-install.jpg' },
+  { id:'existing', name:'Already existing',  ds:'Keep the worktop you have', skip:true }
 ];
 const BACKSPLASH = [
-  { id:'tiles',    name:'Tiles',            ds:'Glazed tile splashback', img:'backsplash-ceramic.jpg', tag:'Popular' },
-  { id:'existing', name:'Already existing', ds:'Keeping the current tiles' }
+  { id:'tiles',    name:'Tiles',            ds:'Glazed tile splashback', img:'backsplash-tiles.jpg', tag:'Popular' },
+  { id:'existing', name:'Already existing', ds:'Keep the tiles you have', skip:true }
 ];
 const SINK_MATERIALS = [
   { id:'ss',      name:'Stainless steel', ds:'Hygienic and easy to clean', img:'sinks/material-ss.jpg', tag:'Popular' },
@@ -1391,8 +1399,8 @@ function optLabel(step, o){
     }
     case 'board': return inr(RATES.woodwork[o.id].laminate) + ' / sq ft';
     case 'handle': return RATES.handle[o.id] ? inr(RATES.handle[o.id]) + ' each' : 'Included';
-    case 'counter': return RATES.counter[o.id] ? inr(RATES.counter[o.id]) + ' / sq ft' : 'Included';
-    case 'backsplash': return RATES.backsplash[o.id] ? inr(RATES.backsplash[o.id]) + ' / sq ft' : 'Included';
+    case 'counter': return RATES.counter[o.id] ? inr(RATES.counter[o.id]) + ' / sq ft' : 'Skip';
+    case 'backsplash': return RATES.backsplash[o.id] ? inr(RATES.backsplash[o.id]) + ' / sq ft' : 'Skip';
     case 'sinkMaterial': return inr(RATES.sink[o.id][(state.sinkType || DEFAULTS.sinkType)]) + ' / sink';
     case 'sinkType': return inr(RATES.sink[(state.sinkMaterial || DEFAULTS.sinkMaterial)][o.id]);
     case 'faucet': return inr(RATES.faucet[o.id]);
@@ -1625,7 +1633,7 @@ function viewOptions(step){
         const media = o.img
           ? `<img src="${A}${o.img}" alt="" onerror="this.style.display='none'">
              <span class="zoom" data-act="view" data-img="${o.img}" data-name="${esc(o.name)}" role="button" aria-label="View ${esc(o.name)} full size">⤢</span>`
-          : `<span class="ph-none">${esc(o.name)}</span>`;
+          : o.skip ? `<span class="ph-skip"><b>Skip</b><i>${esc(o.ds || 'Keep what you have')}</i></span>` : `<span class="ph-none">${esc(o.name)}</span>`;
         return `<button type="button" class="fcard ucard${on ? ' on' : ''}${skipped ? ' muted' : ''}" data-pick="${o.id}" data-kind="group" data-gkey="${g.key}" aria-pressed="${on}" aria-label="${esc(o.name)}, ${esc(label)}">
           <span class="fimg">
             ${media}
