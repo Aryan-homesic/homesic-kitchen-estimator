@@ -944,6 +944,19 @@ body.sheet-open{overflow:hidden}
 /* card photos must rasterise at device resolution, not at layer scale */
 .fimg img{image-rendering:-webkit-optimize-contrast;will-change:auto;backface-visibility:visible}
 
+
+/* price matrix that fills the empty brand slot */
+.planchart{display:flex;flex-direction:column;justify-content:space-between;gap:4px;height:100%;
+  padding:10px 11px 9px;border:1px solid var(--line2);border-radius:var(--r,14px);background:#fff}
+.pc-title{font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);line-height:1.25}
+.pc-row{display:grid;grid-template-columns:1fr repeat(3,24px);align-items:center;gap:2px;
+  padding:3px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.pc-top{border-top:0;padding:2px 0 1px}
+.pc-lab{font-size:10px;color:var(--ink);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-head{font-size:8.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);text-align:center}
+.pc-dot{font-size:10.5px;font-weight:600;color:var(--accent-d);text-align:center}
+.pc-note{font-size:9.5px;color:var(--muted);line-height:1.3}
+
 </style>
 </head>
 <body>
@@ -1582,6 +1595,24 @@ function viewBuild(step){
     </button>
     ${boardCompareHtml()}`;
 }
+
+// Third tile of the brand row is empty on phones: put the price matrix there.
+function planChart(){
+  const brands = HINGE_BRANDS;
+  const rows = HINGE_FUNCTIONS.map(f => {
+    const cells = brands.map(b =>
+      `<span class="pc-dot" title="${esc(b.name)} ${esc(f.name)}">${inr(RATES.hingeFn[f.id]).replace('₹','')}</span>`).join('');
+    return `<div class="pc-row"><span class="pc-lab">${f.id === 'push' ? 'Push open' : 'Soft close'}</span>${cells}</div>`;
+  }).join('');
+  const head = brands.map(b => `<span class="pc-head">${esc(b.name.slice(0, 3))}</span>`).join('');
+  return `<div class="planchart" role="group" aria-label="What each brand costs">
+    <span class="pc-title">Per hinge, brand and closing</span>
+    <div class="pc-row pc-top"><span class="pc-lab"></span>${head}</div>
+    ${rows}
+    <span class="pc-note">The brand you pick doesn't change the rate.</span>
+  </div>`;
+}
+
 function viewOptions(step){
   let action = '';
   if(step.groups){
@@ -1639,8 +1670,9 @@ function viewOptions(step){
           <span class="fmeta"><span class="fname">${esc(o.name)}</span><span class="frate">${label}</span></span>
         </button>`;
       }).join('');
+      const chart = g.key === 'hingeBrand' ? planChart() : '';
       return `<div class="sec-head"><span>${esc(g.label)}</span>${chip}</div>
-        <div class="${isMat ? 'mgrid' : 'tgrid wide photo'}" role="group" aria-label="${esc(g.label)}">${tiles}</div>`;
+        <div class="${isMat ? 'mgrid' : 'tgrid wide photo'}" role="group" aria-label="${esc(g.label)}">${tiles}${chart}</div>`;
     }).join('');
     return `${headHtml(step, action)}${secs}`;
   }
