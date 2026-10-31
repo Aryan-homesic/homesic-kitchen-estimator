@@ -946,16 +946,18 @@ body.sheet-open{overflow:hidden}
 
 
 /* price matrix that fills the empty brand slot */
-.planchart{display:flex;flex-direction:column;justify-content:space-between;gap:4px;height:100%;
-  padding:10px 11px 9px;border:1px solid var(--line2);border-radius:var(--r,14px);background:#fff}
+.planchart{display:flex;flex-direction:column;justify-content:space-between;gap:4px;
+  min-width:0;width:100%;height:100%;align-self:stretch;
+  padding:10px 10px 9px;border:1px solid var(--line2);border-radius:var(--r,14px);background:#fff}
+.pc-dot.off{color:#DDC9CE;font-weight:400}
 .pc-title{font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);line-height:1.25}
-.pc-row{display:grid;grid-template-columns:1fr repeat(3,24px);align-items:center;gap:2px;
+.pc-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,22px);align-items:center;gap:2px;
   padding:3px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
 .pc-top{border-top:0;padding:2px 0 1px}
 .pc-lab{font-size:10px;color:var(--ink);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pc-head{font-size:8.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);text-align:center}
 .pc-dot{font-size:10.5px;font-weight:600;color:var(--accent-d);text-align:center}
-.pc-note{font-size:9.5px;color:var(--muted);line-height:1.3}
+.pc-note{font-size:9px;color:var(--muted);line-height:1.3}
 
 </style>
 </head>
@@ -1596,20 +1598,27 @@ function viewBuild(step){
     ${boardCompareHtml()}`;
 }
 
-// Third tile of the brand row is empty on phones: put the price matrix there.
-function planChart(){
-  const brands = HINGE_BRANDS;
-  const rows = HINGE_FUNCTIONS.map(f => {
-    const cells = brands.map(b =>
-      `<span class="pc-dot" title="${esc(b.name)} ${esc(f.name)}">${inr(RATES.hingeFn[f.id]).replace('₹','')}</span>`).join('');
-    return `<div class="pc-row"><span class="pc-lab">${f.id === 'push' ? 'Push open' : 'Soft close'}</span>${cells}</div>`;
-  }).join('');
-  const head = brands.map(b => `<span class="pc-head">${esc(b.name.slice(0, 3))}</span>`).join('');
-  return `<div class="planchart" role="group" aria-label="What each brand costs">
-    <span class="pc-title">Per hinge, brand and closing</span>
-    <div class="pc-row pc-top"><span class="pc-lab"></span>${head}</div>
+// Lighting has three plans in a two-column grid: the fourth cell compares them.
+const LIGHT_FEATURES = [
+  ['Internal',  ['elite', 'premium', 'standard']],
+  ['External',  ['elite', 'premium']],
+  ['Outlets',   ['elite', 'premium']],
+  ['Concealed', ['elite']]
+];
+function lightChart(){
+  const cols = [['elite', 'ELI'], ['premium', 'PRE'], ['standard', 'STA']];
+  const rows = LIGHT_FEATURES.map(([label, on]) =>
+    `<div class="pc-row"><span class="pc-lab">${label}</span>${
+      cols.map(([id]) => on.includes(id)
+        ? '<span class="pc-dot">✓</span>'
+        : '<span class="pc-dot off">—</span>').join('')
+    }</div>`).join('');
+  return `<div class="planchart" role="group" aria-label="What each lighting plan includes">
+    <span class="pc-title">What each plan includes</span>
+    <div class="pc-row pc-top"><span class="pc-lab"></span>${
+      cols.map(([, h]) => `<span class="pc-head">${h}</span>`).join('')}</div>
     ${rows}
-    <span class="pc-note">The brand you pick doesn't change the rate.</span>
+    <span class="pc-note">Elite covers everything · Standard is internal only.</span>
   </div>`;
 }
 
@@ -1670,7 +1679,7 @@ function viewOptions(step){
           <span class="fmeta"><span class="fname">${esc(o.name)}</span><span class="frate">${label}</span></span>
         </button>`;
       }).join('');
-      const chart = g.key === 'hingeBrand' ? planChart() : '';
+      const chart = '';
       return `<div class="sec-head"><span>${esc(g.label)}</span>${chip}</div>
         <div class="${isMat ? 'mgrid' : 'tgrid wide photo'}" role="group" aria-label="${esc(g.label)}">${tiles}${chart}</div>`;
     }).join('');
@@ -1689,7 +1698,8 @@ function viewOptions(step){
         <span class="fmeta"><span class="fname">${esc(o.name)}</span><span class="frate">${label}</span></span>
       </button>`;
     }).join('');
-    return `${headHtml(step, action)}${hero}<div class="tgrid${step.tiles ? ' wide' : ''}${step.w16 ? ' w16' : ''}" role="group" aria-label="${esc(step.title)}">${tiles}</div>`;
+    const chart = step.id === 'lighting' ? lightChart() : '';
+    return `${headHtml(step, action)}${hero}<div class="tgrid${step.tiles ? ' wide' : ''}${step.w16 ? ' w16' : ''}" role="group" aria-label="${esc(step.title)}">${tiles}${chart}</div>`;
   }
   return `${headHtml(step, action)}
     ${hero}
