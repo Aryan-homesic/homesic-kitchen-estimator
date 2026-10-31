@@ -1,187 +1,179 @@
-# Image list — what to generate
+# Image set — one hand-sketch theme, all 50 files generated
 
-Every image the estimator loads, with the exact filename it expects. Drop a file in with
-the same name and path and the site picks it up — no code change.
-
-**House style for the set**
-
-- Warm daylight, soft shadows, cream / beige / oak palette to sit on `#F8F1EA`.
-- No text, logos, watermarks, arrows or labels baked into the image.
-- No people (hands are fine for a "touch" detail shot).
-- sRGB JPEG, quality ~85, long edge ≥ the size listed.
-- Cards crop to **4:3 banner, anchored 50% 38%** — keep the subject centred with headroom
-  above, and never put anything important in the bottom 15%.
-
-Legend: **REPLACE** = exists but wrong for the new look · **MISSING** = no file yet ·
-**KEEP** = already good.
+Every image in the app is regenerated in a single style so the whole product reads as
+one illustrated set. Filenames are fixed: drop the files into `assets/` with these names
+and nothing else changes.
 
 ---
 
-## 1 · Start screen — hero
+## The theme
 
-| File | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|
-| `assets/hero.jpg` | Wide shot of a cream/oak modular kitchen, counter on the right third, soft window light | 16:9 | 2400 px | REPLACE (annotated catalogue image) |
-| `assets/hero-phone.jpg` | Same kitchen, vertical crop, cabinets filling the top two-thirds | 3:4 | 1600 px | REPLACE |
+**Hand-drawn interior sketch, pastel pink on white.** Loose ink linework, flat pastel
+washes, paper grain, no photography, no text in the image.
 
----
+### Master prompt — prefix to every image
 
-## 2 · Storage screen — the weakest assets today
+> Hand-drawn interior sketch on warm white paper. Loose confident ink linework in warm
+> charcoal `#4A3B42`, around 2 px at 1400 px wide, slightly wobbly rather than geometric.
+> Flat pastel washes only, no gradients and no photographic texture: blush `#FCE4EA`,
+> rose `#E8A9B5`, deeper rose `#C4708A` for accents, cream `#FFF8F7` for paper. Soft
+> pencil hatching for shadow, a little paper grain. No text, no lettering, no numbers,
+> no watermark, no logo. Straight-on eye-level view, subject centred with headroom,
+> generous white space around the edges. Editorial cookbook illustration, calm and warm.
 
-All five currently are dark catalogue screenshots with titles and thumbnail strips.
+### Palette — derived from the set and used by the UI
 
-| File | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|
-| `assets/storage/hero.jpg` | Full kitchen, three walls of cabinetry, warm light — the "all units" hero | 2:1 | 2000 px | REPLACE |
-| `assets/storage/unit-base.jpg` | Base run only: counter-height cabinets with drawers, no wall units above | 4:3 | 1400 px | REPLACE |
-| `assets/storage/unit-wall.jpg` | Wall units only, shallow cabinets on a plain backsplash | 4:3 | 1400 px | REPLACE |
-| `assets/storage/unit-loft.jpg` | Loft band above wall units, boxes and rarely-used items, ceiling visible | 4:3 | 1400 px | REPLACE |
-| `assets/storage/unit-tall.jpg` | Tall unit / pantry with oven or microwave, floor to ceiling | 4:3 | 1400 px | REPLACE |
-| `assets/storage/unit-fridge.jpg` | Fridge bay with a built-in fridge and the gap closed by panels | 4:3 | 1400 px | REPLACE |
-
----
-
-## 3 · Build screen — finishes
-
-| File | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|
-| `assets/finishes/laminate.jpg` | Matte laminate shutters, warm wood tone | 4:3 | 1400 px | KEEP |
-| `assets/finishes/acrylic.jpg` | High-gloss acrylic, light colour, visible reflection | 4:3 | 1400 px | KEEP |
-| `assets/finishes/membrane.jpg` | Matte membrane, soft cream, handleless | 4:3 | 1400 px | KEEP |
-| `assets/finishes/pu.jpg` | PU lacquer, deep colour, satin sheen | 4:3 | 1400 px | KEEP |
-| `assets/finishes/veneer.jpg` | Natural veneer grain, close crop on a shutter | 4:3 | 1400 px | KEEP |
-| `assets/finishes/rattan.jpg` | Rattan / cane front, woven texture | 4:3 | 1400 px | KEEP |
-
-### Boards (used in the quote and deck)
-
-| File | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|
-| `assets/board-hdhmr-board.jpg` | HDHMR board stack / edge, no label printed | 4:3 | 1200 px | REPLACE (text on image) |
-| `assets/board-bwr-plywood.jpg` | BWR ply stack, edge and face | 4:3 | 1200 px | REPLACE |
-| `assets/board-bwp-marine-plywood.jpg` | BWP marine ply stack | 4:3 | 1200 px | REPLACE |
-
----
-
-## 4 · Handles — five options, five distinct photos
-
-| File | Option | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|---|
-| `assets/handles/profile.jpg` | Profile | G-profile aluminium channel along a shutter top | 1:1 | 1200 px | KEEP |
-| `assets/handles/standard.jpg` | Standard | Simple slim pull on a flat shutter | 1:1 | 1200 px | MISSING (currently reuses `bar.jpg`) |
-| `assets/handles/premium.jpg` | Premium | Longer, thicker pull, brass or black | 1:1 | 1200 px | MISSING (currently reuses `groove.jpg`) |
-| `assets/handles/designer.jpg` | Designer | Statement handle / sculptural knob | 1:1 | 1200 px | MISSING (currently reuses `knob.jpg`) |
-| `assets/handles/groove.jpg` | Groove | Recessed finger pull, no hardware visible | 1:1 | 1200 px | KEEP |
-
----
-
-## 5 · Surfaces — worktop and backsplash
-
-| File | Option | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|---|
-| `assets/card-counter-granite.jpg` | Granite | Dark speckled granite slab, edge profile visible | 4:3 | 1400 px | KEEP |
-| `assets/card-counter-quartz.jpg` | Quartz | White quartz with fine veining | 4:3 | 1400 px | KEEP |
-| `assets/card-counter-install.jpg` | Only installation | Slab on trestles with a fitter's tools, no cabinet | 4:3 | 1400 px | MISSING |
-| `assets/card-counter-existing.jpg` | Already existing | Existing worktop with a sink cut-out, lived-in | 4:3 | 1400 px | MISSING |
-| `assets/backsplash-tiles.jpg` | Tiles | Glazed subway/tile splashback behind a counter | 4:3 | 1400 px | REPLACE (`backsplash-ceramic.jpg` has a printed label) |
-| `assets/backsplash-existing.jpg` | Already existing | Plain painted wall above a counter | 4:3 | 1400 px | MISSING |
-
----
-
-## 6 · Sink and tap
-
-### Materials — flat texture swatches, shown inside a circle
-
-| File | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|
-| `assets/sinks/material-ss.jpg` | Brushed stainless texture | 1:1 | 900 px | KEEP |
-| `assets/sinks/material-granite.jpg` | Black composite granite speckle | 1:1 | 900 px | KEEP |
-| `assets/sinks/material-quartz.jpg` | White quartz speckle | 1:1 | 900 px | KEEP |
-| `assets/sinks/material-ceramic.jpg` | Cream ceramic glaze | 1:1 | 900 px | KEEP |
-
-### Bowl types
-
-| File | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|
-| `assets/sinks/type-single.jpg` | Single bowl, top-down, tap visible | 4:3 | 1400 px | KEEP |
-| `assets/sinks/type-double.jpg` | Double bowl, top-down | 4:3 | 1400 px | KEEP |
-| `assets/sinks/type-doubletray.jpg` | Double bowl + drainboard, board and colander in place | 4:3 | 1400 px | KEEP |
-| `assets/sinks/type-tray.jpg` | Worktop sink with a draining board | 4:3 | 1400 px | KEEP |
-
-### Taps
-
-| File | Option | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|---|
-| `assets/faucets/standard.jpg` | Standard | Single-lever mixer, chrome | 1:1 | 1200 px | MISSING (reuses `single.jpg`) |
-| `assets/faucets/premium.jpg` | Premium | Two-handle mixer, brass body | 1:1 | 1200 px | MISSING (reuses `double.jpg`) |
-| `assets/faucets/designer.jpg` | Designer | Pull-out spray head, matte black | 1:1 | 1200 px | MISSING (reuses `pullout.jpg`) |
-
----
-
-## 7 · Hinges — two functions, three brands
-
-| File | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|
-| `assets/hardware-soft-close.jpg` | Cup hinge on an open door, close crop | 4:3 | 1200 px | KEEP |
-| `assets/hardware-push-open.jpg` | Handleless door with a push-latch, finger pressing | 4:3 | 1200 px | KEEP |
-| `assets/hardware-hettich.jpg` | Drawer with a Hettich-branded side (brand may show) | 4:3 | 1200 px | KEEP |
-| `assets/hardware-moda.jpg` | Drawer/hinge shot, Moda branding, same angle as above | 4:3 | 1200 px | MISSING |
-| `assets/hardware-doorset.jpg` | Drawer/hinge shot, Doorset branding, same angle | 4:3 | 1200 px | MISSING |
-
----
-
-## 8 · Lighting — three grades
-
-| File | Option | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|---|
-| `assets/lighting-standard.jpg` | Standard | Only internal cabinet lights glowing, room in low light | 4:3 | 1400 px | REPLACE (`lighting-internal.jpg` is a bright kitchen) |
-| `assets/lighting-premium.jpg` | Premium | Internal + under-cabinet strip + a socket plate visible | 4:3 | 1400 px | REPLACE |
-| `assets/lighting-elite.jpg` | Elite | Coffered / concealed ceiling light, ambient wash, accent spots | 4:3 | 1400 px | REPLACE |
-
----
-
-## 9 · Drawers — three types
-
-| File | Option | What to show | Ratio | Long edge | Status |
-|---|---|---|---|---|---|
-| `assets/drawers-normal.jpg` | Normal channel | Drawer pulled open, simple channel runner visible | 4:3 | 1200 px | MISSING (reuses a storage shot) |
-| `assets/drawers-jali.jpg` | Jali + channels | Wire-basket drawer with utensils | 4:3 | 1200 px | MISSING |
-| `assets/drawers-tandem.jpg` | Innotech tandem | Deep drawer, soft-close runner, crockery inside | 4:3 | 1200 px | MISSING |
-
----
-
-## 10 · Shape plans — keep
-
-| File | What to show | Ratio | Status |
-|---|---|---|---|
-| `assets/shape/straight.jpg` | Top-down plan, straight run | 1:1 | KEEP |
-| `assets/shape/parallel.jpg` | Top-down plan, two facing runs | 1:1 | KEEP |
-| `assets/shape/lshape.jpg` | Top-down plan, L-shaped run | 1:1 | KEEP |
-| `assets/shape/ushape.jpg` | Top-down plan, U-shaped run | 1:1 | KEEP |
-
----
-
-## 11 · Brand — keep
-
-| File | Use | Format |
+| Token | Hex | Where it lives |
 |---|---|---|
-| `assets/logo-mark.png` | Header, PDF header, favicon | transparent PNG, 600 × 520 |
-| `assets/logo-full.png` | Reserved for print | transparent PNG |
+| Paper | `#FFF8F7` | page background, image paper |
+| Paper light | `#FFFDFC` | quote card |
+| Card white | `#FFFFFF` | option cards, dock |
+| Blush wash | `#FBEFF1` | image fills, empty states |
+| Blush deep | `#FCE4EA` | first payment chip, tints |
+| Rose | `#E8A9B5` | fills, primary buttons |
+| Rose deep | `#C4708A` | prices, headings accent, links |
+| Ink | `#453A40` | linework, body text |
+| Ink soft | `#6B5A61` | secondary text |
+| Muted | `#A08E94` | captions, hints |
+| Hairline | `#F0E1E4` | dividers |
+| Hairline strong | `#E4CDD3` | card borders, controls |
+| Sage | `#8FB3A2` | success only |
+| Clay | `#C97C6B` | warnings only |
+
+Rules: linework is always ink; fills are always blush/rose; never introduce a second
+hue family. Shadows are pencil hatch, never a soft photo shadow.
 
 ---
 
-## Count to generate
+## File list — all generate
 
-| Group | Files |
-|---|---|
-| Hero | 2 |
-| Storage | 6 |
-| Boards | 3 |
-| Handles | 3 |
-| Surfaces | 4 |
-| Taps | 3 |
-| Hinge brands | 2 |
-| Lighting | 3 |
-| Drawers | 3 |
-| **Total** | **29** |
+Ratio is what the UI crops to; give the generator at least the long edge listed
+(1500 px is a safe default for every file). Card images crop to a 4:3 banner anchored
+50% 38%, so keep the subject centred with headroom.
 
-Everything else is already right.
+### 1 · Start
+
+| File | Prompt | Ratio |
+|---|---|---|
+| `assets/hero.jpg` | A three-wall cream kitchen seen from the doorway, pencil lines on white, blush pink cabinet washes, a small plant and bowl on the counter | 16:9 |
+| `assets/hero-phone.jpg` | Same kitchen, vertical composition, cabinets filling the upper two thirds, counter along the bottom | 3:4 |
+
+### 2 · Storage
+
+| File | Prompt | Ratio |
+|---|---|---|
+| `assets/storage/hero.jpg` | Wide kitchen elevation, all three unit types visible, loose hatch shadows | 2:1 |
+| `assets/storage/unit-base.jpg` | Base run only: three drawer stacks under a counter, open floor below, no wall units | 4:3 |
+| `assets/storage/unit-wall.jpg` | Wall units only: two shallow cabinets floating on a plain backsplash | 4:3 |
+| `assets/storage/unit-loft.jpg` | Loft band above wall units with two storage boxes, ceiling line visible | 4:3 |
+| `assets/storage/unit-tall.jpg` | Tall pantry unit with an oven and microwave stacked, floor to ceiling | 4:3 |
+| `assets/storage/unit-fridge.jpg` | Fridge bay: built-in fridge with panels closing the gap above | 4:3 |
+
+### 3 · Build — finishes and boards
+
+| File | Prompt | Ratio |
+|---|---|---|
+| `assets/finishes/laminate.jpg` | Matte laminate shutters in warm oak wash, three doors, simple profile | 4:3 |
+| `assets/finishes/acrylic.jpg` | Gloss acrylic shutters in pale pink, one door catching a white highlight streak | 4:3 |
+| `assets/finishes/membrane.jpg` | Matte membrane fronts in cream, handleless, thin shadow gap | 4:3 |
+| `assets/finishes/pu.jpg` | PU lacquer in deeper rose, satin sheen, single wide drawer front | 4:3 |
+| `assets/finishes/veneer.jpg` | Veneer grain close-up, pencil hatching following the grain | 4:3 |
+| `assets/finishes/rattan.jpg` | Rattan cane front, woven cross-hatch pattern, blush wash behind | 4:3 |
+| `assets/board-hdhmr-board.jpg` | Stack of three boards in section, edge grain visible, ink outlines | 4:3 |
+| `assets/board-bwr-plywood.jpg` | Plywood stack, layered edges, one board leaning | 4:3 |
+| `assets/board-bwp-marine-plywood.jpg` | Marine ply stack with a subtle waterproof droplet motif drawn beside it | 4:3 |
+
+### 4 · Handles — five, each visibly different
+
+| File | Prompt | Ratio |
+|---|---|---|
+| `assets/handles/profile.jpg` | G-profile channel running along the top edge of a shutter, drawn in section | 1:1 |
+| `assets/handles/standard.jpg` | One short slim pull handle centred on a flat shutter | 1:1 |
+| `assets/handles/premium.jpg` | A longer, thicker bar pull with two posts, deeper rose fill | 1:1 |
+| `assets/handles/designer.jpg` | Sculptural round knob with a fine ring detail, drawn larger than life | 1:1 |
+| `assets/handles/groove.jpg` | Recessed finger groove cut into a shutter edge, no hardware visible | 1:1 |
+
+### 5 · Surfaces
+
+| File | Prompt | Ratio |
+|---|---|---|
+| `assets/card-counter-granite.jpg` | Slab of speckled granite in section, speckles as pencil dots | 4:3 |
+| `assets/card-counter-quartz.jpg` | Pale quartz slab with two thin vein lines | 4:3 |
+| `assets/card-counter-install.jpg` | Slab resting on two trestles with a clamp and measuring tape, no cabinets | 4:3 |
+| `assets/card-counter-existing.jpg` | Old worktop with a sink cut-out and a chipped front edge | 4:3 |
+| `assets/backsplash-tiles.jpg` | Brick-bond tile splashback behind a counter, grout lines in ink | 4:3 |
+| `assets/backsplash-existing.jpg` | Plain painted wall above a counter, one hairline crack | 4:3 |
+
+### 6 · Sink and tap
+
+| File | Prompt | Ratio |
+|---|---|---|
+| `assets/sinks/material-ss.jpg` | Brushed stainless texture, fine parallel ink hatching | 1:1 |
+| `assets/sinks/material-granite.jpg` | Black composite texture, dotted speckle on a dark wash | 1:1 |
+| `assets/sinks/material-quartz.jpg` | White quartz texture, sparse pencil fleck | 1:1 |
+| `assets/sinks/material-ceramic.jpg` | Cream glaze, smooth wash with one highlight curve | 1:1 |
+| `assets/sinks/type-single.jpg` | Single bowl from above with a tap, water line drawn | 4:3 |
+| `assets/sinks/type-double.jpg` | Double bowl from above, two equal basins | 4:3 |
+| `assets/sinks/type-doubletray.jpg` | Double bowl with a drainboard, chopping board and colander resting on it | 4:3 |
+| `assets/sinks/type-tray.jpg` | Worktop sink with a sloped draining board of fluted lines | 4:3 |
+| `assets/faucets/standard.jpg` | Single-lever mixer in profile, slim body | 1:1 |
+| `assets/faucets/premium.jpg` | Two-handle mixer, brass body, cross handles | 1:1 |
+| `assets/faucets/designer.jpg` | Pull-out spray tap with a coiled hose detail | 1:1 |
+
+### 7 · Hinges
+
+| File | Prompt | Ratio |
+|---|---|---|
+| `assets/hardware-soft-close.jpg` | Cup hinge on an open door drawn at an angle, damper cylinder visible | 4:3 |
+| `assets/hardware-push-open.jpg` | Handleless door with a fingertip pressing the corner, motion lines | 4:3 |
+| `assets/hardware-hettich.jpg` | Drawer pulled open in three-quarter view, side runner visible | 4:3 |
+| `assets/hardware-moda.jpg` | Same drawer view, different runner detail and a rose wash handle | 4:3 |
+| `assets/hardware-doorset.jpg` | Same drawer view, heavier box profile, deeper hatch shadow | 4:3 |
+
+### 8 · Lighting
+
+| File | Prompt | Ratio |
+|---|---|---|
+| `assets/lighting-standard.jpg` | Cabinet doors open with soft light inside, room otherwise dim, light rays as hatch | 4:3 |
+| `assets/lighting-premium.jpg` | Under-cabinet strip along a shelf, a socket plate beside it | 4:3 |
+| `assets/lighting-elite.jpg` | Concealed ceiling cove washing the wall, two pendant spots | 4:3 |
+
+### 9 · Drawers
+
+| File | Prompt | Ratio |
+|---|---|---|
+| `assets/drawers-normal.jpg` | Drawer pulled out, plain channel runner visible, empty interior | 4:3 |
+| `assets/drawers-jali.jpg` | Wire-basket drawer with a few utensils sketched inside | 4:3 |
+| `assets/drawers-tandem.jpg` | Deep drawer open with stacked crockery, soft-close runner detail | 4:3 |
+
+### 10 · Shape plans
+
+| File | Prompt | Ratio |
+|---|---|---|
+| `assets/shape/straight.jpg` | Top-down plan, one straight run, sink and hob marked as simple shapes | 1:1 |
+| `assets/shape/parallel.jpg` | Top-down plan, two facing runs | 1:1 |
+| `assets/shape/lshape.jpg` | Top-down plan, L-shaped run | 1:1 |
+| `assets/shape/ushape.jpg` | Top-down plan, U-shaped run | 1:1 |
+
+### 11 · Brand
+
+| File | Prompt | Format |
+|---|---|---|
+| `assets/logo-mark.png` | The Homesic mark redrawn as a single-line sketch in ink on transparent | transparent PNG, 600 × 520 |
+| `assets/logo-full.png` | Mark plus wordmark, single-line sketch, transparent | transparent PNG, 600 × 520 |
+
+---
+
+## How to deliver
+
+1. Generate at 1500 px long edge minimum, sRGB JPEG (PNG for the two logos).
+2. Keep the filename exactly as listed — case and folder matter.
+3. Drop into `assets/` in this repo, run `node server.js`, open `?cb=1` to bust the cache.
+4. No crop is needed: the UI crops to 4:3 itself.
+
+## What the UI already does with them
+
+The interface is on the same palette: paper `#FFF8F7`, ink `#453A40`, rose `#E8A9B5`,
+deep rose `#C4708A`, hairlines `#F0E1E4`. Photos sit in white cards with a 16 px radius,
+a 4:3 banner crop, and a rose tick when selected — so a sketch with generous white space
+reads as part of the page rather than a picture dropped in.
