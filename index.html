@@ -1561,7 +1561,7 @@ function viewQuote(){
         <p class="delivery ${state.lead.delivery || 'local'}">${state.lead.delivery === 'sent' ? 'Request sent to the studio.' : state.lead.delivery === 'sending' ? 'Sending your request to the studio…' : state.lead.delivery === 'failed' ? 'Could not reach the studio — your request is saved on this device.' : 'Saved on this device.'}</p>
       </div>
       <div class="doc-acts">
-        <button class="btn" type="button" data-act="wa">Share on WhatsApp</button>
+        ${CONFIG.whatsapp ? '<button class="btn" type="button" data-act="wa">Share on WhatsApp</button>' : ''}
                 <button class="btn line" type="button" data-act="edit">Edit choices</button>
         ${cal ? `<a class="btn" href="${esc(cal)}" target="_blank" rel="noopener">Book a site visit →</a>` : ''}
       </div>
