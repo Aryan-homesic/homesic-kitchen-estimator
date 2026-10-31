@@ -1560,7 +1560,7 @@ function viewBuild(step){
     </button>`;
   }).join('');
   const wallOn = !!state.units.wall;
-  const glassAmt = wallOn ? price().glassArea * RATES.glass * (1 + DESIGN_PCT) : 0;
+  const glassAmt = wallOn ? (runInfo().wall * 2) * RATES.glass * (1 + DESIGN_PCT) : 0;
   const g = state.glass && wallOn;
   return `${headHtml(step, action)}
     <div class="bsec"><span class="blabel">Board</span><div class="seg" role="group" aria-label="Board">${seg}</div></div>
