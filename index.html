@@ -845,6 +845,12 @@ body{
 .cmpwrap{background:var(--white);border-color:var(--line2)}
 .ph-none{background:var(--frame);color:var(--muted);border-color:var(--line2)}
 
+
+/* the illustration set is drawn with margins: show it whole, not cropped */
+.opt .ph img,.ugrid .ph img,.tgrid .ph img{object-fit:contain;background:#fff}
+.opt .ph,.ugrid .ph,.tgrid .ph{background:#fff}
+.fcard .fimg img{object-fit:contain;background:#fff}
+
 </style>
 </head>
 <body>
@@ -1012,19 +1018,19 @@ const FINISHES = [
 ];
 const HANDLES = [
   { id:'profile',  name:'Profile',  ds:'G-profile aluminium channel', img:'handles/profile.jpg', tag:'Popular' },
-  { id:'standard', name:'Standard', ds:'Everyday pull handle', img:'handles/bar.jpg' },
+  { id:'standard', name:'Standard', ds:'Everyday pull handle', img:'handles/standard.jpg' },
   { id:'premium',  name:'Premium',  ds:'Longer, heavier pull', img:'handles/groove.jpg' },
-  { id:'designer', name:'Designer', ds:'Statement handle', img:'handles/knob.jpg' },
+  { id:'designer', name:'Designer', ds:'Statement handle', img:'handles/designer.jpg' },
   { id:'groove',   name:'Groove',   ds:'Recessed finger pull, included', img:'handles/profile.jpg' }
 ];
 const COUNTERS = [
   { id:'granite',  name:'Granite',           ds:'Natural stone', img:'card-counter-granite.jpg', tag:'Popular' },
   { id:'quartz',   name:'Quartz',            ds:'Non-porous', img:'card-counter-quartz.jpg' },
-  { id:'install',  name:'Only installation', ds:'You supply the slab, we fit it', img:'card-counter-full-body-tile.jpg' },
+  { id:'install',  name:'Only installation', ds:'You supply the slab, we fit it', img:'card-counter-install.jpg' },
   { id:'existing', name:'Already existing',  ds:'Keeping the current worktop' }
 ];
 const BACKSPLASH = [
-  { id:'tiles',    name:'Tiles',            ds:'Glazed tile splashback', img:'backsplash-ceramic.jpg', tag:'Popular' },
+  { id:'tiles',    name:'Tiles',            ds:'Glazed tile splashback', img:'backsplash-tiles.jpg', tag:'Popular' },
   { id:'existing', name:'Already existing', ds:'Keeping the current tiles' }
 ];
 const SINK_MATERIALS = [
@@ -1040,9 +1046,9 @@ const SINK_TYPES = [
   { id:'tray',       name:'Worktop sink',           ds:'Bowl with a draining board', img:'sinks/type-doubletray.jpg' }
 ];
 const FAUCETS = [
-  { id:'standard', name:'Standard', ds:'Single lever, everyday use', img:'faucets/single.jpg', tag:'Popular' },
-  { id:'premium',  name:'Premium',  ds:'Two-handle, brass body', img:'faucets/double.jpg' },
-  { id:'designer', name:'Designer', ds:'Pull-out spray head', img:'faucets/pullout.jpg' }
+  { id:'standard', name:'Standard', ds:'Single lever, everyday use', img:'faucets/standard.jpg', tag:'Popular' },
+  { id:'premium',  name:'Premium',  ds:'Two-handle, brass body', img:'faucets/premium.jpg' },
+  { id:'designer', name:'Designer', ds:'Pull-out spray head', img:'faucets/designer.jpg' }
 ];
 const HINGE_BRANDS = [
   { id:'hettich', name:'Hettich', ds:'German-engineered precision', img:'hardware-hettich.jpg', tag:'Popular' },
@@ -1054,14 +1060,14 @@ const HINGE_FUNCTIONS = [
   { id:'push', name:'Push-to-open', ds:'Handle-free fronts', img:'hardware-push-open.jpg' }
 ];
 const LIGHTING = [
-  { id:'standard', name:'Standard', ds:'Internal lighting only', img:'lighting-internal.jpg', tag:'Popular' },
-  { id:'premium',  name:'Premium',  ds:'Internal + external + outlets', img:'lighting-internal-external-outlets.jpg' },
-  { id:'elite',    name:'Elite',    ds:'Complete lighting + concealed outlets', img:'lighting-complete.jpg' }
+  { id:'standard', name:'Standard', ds:'Internal lighting only', img:'lighting-standard.jpg', tag:'Popular' },
+  { id:'premium',  name:'Premium',  ds:'Internal + external + outlets', img:'lighting-premium.jpg' },
+  { id:'elite',    name:'Elite',    ds:'Complete lighting + concealed outlets', img:'lighting-elite.jpg' }
 ];
 const DRAWERS = [
-  { id:'normal', name:'Normal channel',  ds:'Drawer box on standard channels', img:'storage/unit-base.jpg' },
-  { id:'jali',   name:'Jali + channels', ds:'Wire-basket drawer on channels', img:'storage/unit-wall.jpg' },
-  { id:'tandem', name:'Innotech tandem', ds:'Soft-close tandem runners', img:'storage/unit-tall.jpg', tag:'Popular' }
+  { id:'normal', name:'Normal channel',  ds:'Drawer box on standard channels', img:'drawers/normal.jpg' },
+  { id:'jali',   name:'Jali + channels', ds:'Wire-basket drawer on channels', img:'drawers/jali.jpg' },
+  { id:'tandem', name:'Innotech tandem', ds:'Soft-close tandem runners', img:'drawers/tandem.jpg', tag:'Popular' }
 ];
 
 
