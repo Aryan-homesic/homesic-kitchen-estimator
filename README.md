@@ -38,7 +38,7 @@ title row. Skipped items are left out of the price and listed as “Not included
 All quiz, size and quote screens sit on the cover photo; the contact gate (and the local leads
 view) stay on the light background. The details gate asks for name, mobile and city, and accepts
 an optional floor plan (PDF/JPG/PNG, 10 MB max). The quote is a document with itemised lines,
-10/40/45/5 payment terms, warranty note, WhatsApp share, Save PDF and Edit choices.
+10/50/35/5 payment terms, warranty note, WhatsApp share, Save PDF and Edit choices.
 
 ## Calculator
 

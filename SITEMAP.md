@@ -76,7 +76,7 @@ Homesic Estimator (single page, one flow)
 └── 12 · Quote ────────────────────────────── the deliverable
         ├── Selections summary ("What you picked")
         ├── Compact bill (8 lines + total)
-        ├── Payment stages 10 / 40 / 45 / 5
+        ├── Payment stages 10 / 50 / 35 / 5
         ├── Download PDF (A4, one page)
         ├── Feedback: 6 reaction chips + budget lever (₹2 L–₹6 L)
         └── Delivery: one email, auto-sent after 3.5 min, re-sent if feedback changes

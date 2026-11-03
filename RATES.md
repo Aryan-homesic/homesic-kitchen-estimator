@@ -117,4 +117,4 @@ construction = CP + GL + PVCP + HP + CTP + BSP + SP + HiP + LP + DP
 total        = construction × 1.05
 ```
 
-Payment split: 10% token · 40% production · 45% before shutters and hardware · 5% after handover.
+Payment split: 10% token · 50% production · 35% before shutters and hardware · 5% after handover.

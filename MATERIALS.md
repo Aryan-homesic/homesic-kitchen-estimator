@@ -187,8 +187,8 @@ Hettich soft-close · standard lighting · no drawers.
 | Design charge | 5% | | 12,140 |
 | **Total** | | | **2,54,940** |
 
-Payment split on the total: 10% token (25,494) · 40% production (1,01,976) ·
-45% before shutters and hardware (1,14,723) · 5% after handover (12,747).
+Payment split on the total: 10% token (25,494) · 50% production (1,27,470) ·
+35% before shutters and hardware (89,229) · 5% after handover (12,747).
 
 ---
 
