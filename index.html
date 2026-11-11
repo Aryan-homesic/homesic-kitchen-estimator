@@ -1287,6 +1287,9 @@ const CONFIG = {
   //    sign in with the studio email and copy the key). Every quote is
   //    emailed to the address that key belongs to.
   leadAccessKey: 'd411e48a-e577-490c-993e-819d53082e91',
+  // the address that receives every quote. FormSubmit needs no key or account:
+  // the first submission emails this address an activation link, one click, done.
+  mailTo: 'aryan@homsic.com',
   // 2. Studio WhatsApp number, digits with country code, e.g. 919876543210.
   //    Used by "Share on WhatsApp" and as the fallback when email fails.
   whatsapp: '',
@@ -2393,14 +2396,15 @@ function quoteCard(p){
     ? new Date(state.lead.at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
     : '';
   const delivery = (state.lead && state.lead.delivery) || 'local';
-  const statusLine = delivery === 'sent'   ? '<span class="qstat ok">Sent to the studio</span>'
+  const statusLine = delivery === 'activate' ? '<span class="qstat wait">Activating studio mailbox \u2014 check ' + esc(CONFIG.mailTo || '') + '</span>'
+    : delivery === 'sent'   ? '<span class="qstat ok">Sent to the studio</span>'
     : delivery === 'sending'              ? '<span class="qstat wait">Sending to the studio\u2026</span>'
     : delivery === 'failed'               ? '<span class="qstat bad">Could not reach the studio <button type="button" data-act="resend">Retry</button></span>'
     : '';
   const templateKey = 'd411e48a-e577-490c-993e-819d53082e91';
-  const demoWarn = (!CONFIG.leadAccessKey || CONFIG.leadAccessKey === templateKey)
-    ? `<p class="demo-warn"><b>Studio mail isn't configured yet.</b> This quote is going to the template's demo inbox, not to you. Paste your own Web3Forms key into <b>CONFIG.leadAccessKey</b> at the top of index.html and it starts arriving.</p>`
-    : '';
+  const demoWarn = CONFIG.mailTo
+    ? ''
+    : `<p class="demo-warn"><b>Studio mail isn't configured.</b> Add <b>CONFIG.mailTo</b> with the address that should receive quotes.</p>`;
   return `${demoWarn}<section class="qcard" aria-labelledby="qTitle">
     <div class="qc-head">
       <div class="qc-lead">
@@ -3211,9 +3215,50 @@ function sendQuote(withFeedback, opts){
         fd.append(k, String(v));
       });
       if(planFile) fd.append('attachment', planFile, planFile.name);
-      navigator.sendBeacon(CONFIG.leadEndpoint, fd);
+      const target = CONFIG.mailTo
+        ? 'https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.mailTo)
+        : CONFIG.leadEndpoint;
+      if(CONFIG.mailTo){
+        fd.append('_subject', (window.__lastQuotePayload || {}).subject || 'Homesic quote');
+        fd.append('_captcha', 'false');
+      }
+      navigator.sendBeacon(target, fd);
       done(true);
     } catch(err){ done(false); }
+    return;
+  }
+
+  // FormSubmit: no key, no account — just an address that has confirmed once
+  if(CONFIG.mailTo){
+    const fd = new FormData();
+    fd.append('_subject', subject);
+    fd.append('_template', 'table');
+    fd.append('_captcha', 'false');
+    fd.append('name', state.name || '');
+    fd.append('email', state.email || '');
+    fd.append('phone', state.phone || '');
+    fd.append('city', state.city || '');
+    fd.append('quote_id', lead.id);
+    fd.append('total', String(p.total));
+    fd.append('delivery_mode', payload.delivery_mode || '');
+    fd.append('message', message);
+    if(planFile) fd.append('attachment', planFile, planFile.name);
+    const url = 'https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.mailTo);
+    fetch(url, { method:'POST', body: fd, headers:{ 'Accept':'application/json' } })
+      .then(r => r.json().catch(() => ({})))
+      .then(j => {
+        const ok = String(j.success) === 'true' || j.success === true;
+        const needsActivation = /activat/i.test(String(j.message || ''));
+        window.__lastQuoteResult = j;
+        if(!ok && needsActivation && state.lead && state.lead.id === lead.id){
+          state.lead.delivery = 'activate';          // one-time: the studio must click the link
+          save();
+          if(state.step === LAST) draw();
+          return;
+        }
+        done(ok);
+      })
+      .catch(err => { window.__lastQuoteResult = String(err); done(false); });
     return;
   }
 
