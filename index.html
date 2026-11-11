@@ -1286,10 +1286,11 @@ const CONFIG = {
   // 1. Paste your own Web3Forms access key here (free at web3forms.com,
   //    sign in with the studio email and copy the key). Every quote is
   //    emailed to the address that key belongs to.
-  leadAccessKey: 'd411e48a-e577-490c-993e-819d53082e91',
-  // the address that receives every quote. FormSubmit needs no key or account:
-  // the first submission emails this address an activation link, one click, done.
+  leadAccessKey: '7577508e-855e-430e-9c97-259662cbbb68',
+  // backup route: if the primary form service does not answer, the same quote is
+  // pushed through FormSubmit to this address (already activated once).
   mailTo: 'aryan@homsic.com',
+  primaryFormSubmit: true,          // FormSubmit is the carrier: it reports success/failure we can read
   // 2. Studio WhatsApp number, digits with country code, e.g. 919876543210.
   //    Used by "Share on WhatsApp" and as the fallback when email fails.
   whatsapp: '',
@@ -2396,7 +2397,7 @@ function quoteCard(p){
     ? new Date(state.lead.at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
     : '';
   const delivery = (state.lead && state.lead.delivery) || 'local';
-  const statusLine = delivery === 'activate' ? '<span class="qstat wait">Activating studio mailbox \u2014 check ' + esc(CONFIG.mailTo || '') + '</span>'
+  const statusLine = delivery === 'activate' ? '<span class="qstat wait">Activate the studio mailbox \u2014 check ' + esc(CONFIG.mailTo || '') + ' <button type="button" data-act="resend">I\u2019ve clicked it</button></span>'
     : delivery === 'sent'   ? '<span class="qstat ok">Sent to the studio</span>'
     : delivery === 'sending'              ? '<span class="qstat wait">Sending to the studio\u2026</span>'
     : delivery === 'failed'               ? '<span class="qstat bad">Could not reach the studio <button type="button" data-act="resend">Retry</button></span>'
@@ -3056,6 +3057,37 @@ window.addEventListener('beforeunload', () => {
   if(lead && lead.delivery === 'pending') flushQuoteMail();
 });
 
+/* the backup route, also used when the primary service stays silent */
+function deliverViaFormSubmit(payload, message, subject, file){
+  return new Promise(resolve => {
+    if(!CONFIG.mailTo){ resolve(false); return; }
+    try {
+      const fd = new FormData();
+      fd.append('_subject', subject || 'Homesic quote');
+      fd.append('_template', 'table');
+      fd.append('_captcha', 'false');
+      fd.append('name', payload.name || '');
+      fd.append('email', payload.email || '');
+      fd.append('phone', payload.phone || '');
+      fd.append('city', payload.city || '');
+      fd.append('quote_id', payload.quote_id || '');
+      fd.append('total', payload.total != null ? String(payload.total) : '');
+      fd.append('message', message);
+      if(file) fd.append('attachment', file, file.name);
+      fetch('https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.mailTo), {
+        method:'POST', body: fd, headers:{ 'Accept':'application/json' }
+      })
+        .then(r => r.json().catch(() => ({})))
+        .then(j => {
+          const ok = String(j.success) === 'true' || j.success === true;
+          window.__lastQuoteBackup = j;
+          resolve(ok);
+        })
+        .catch(() => resolve(false));
+    } catch(e){ resolve(false); }
+  });
+}
+
 function queueResend(){
   const lead = state.lead;
   if(!lead || lead.delivery !== 'sent' || !CONFIG.leadEndpoint) return;
@@ -3229,7 +3261,7 @@ function sendQuote(withFeedback, opts){
   }
 
   // FormSubmit: no key, no account — just an address that has confirmed once
-  if(CONFIG.mailTo){
+  if(CONFIG.mailTo && CONFIG.primaryFormSubmit){
     const fd = new FormData();
     fd.append('_subject', subject);
     fd.append('_template', 'table');
@@ -3262,7 +3294,9 @@ function sendQuote(withFeedback, opts){
     return;
   }
 
-  if(/web3forms\.com/i.test(CONFIG.leadEndpoint)){
+  // Web3Forms is only used when no FormSubmit address is configured:
+  // its iframe cannot report whether the submission was accepted (we measured 403s here).
+  if(!CONFIG.mailTo && /web3forms\.com/i.test(CONFIG.leadEndpoint)){
     const wf = $('wfForm');
     wf.action = CONFIG.leadEndpoint;
     wf.innerHTML = '';
@@ -3288,7 +3322,16 @@ function sendQuote(withFeedback, opts){
     const mark = ok => { if(marked) return; marked = true; done(ok); };
     const frame = $('wfTarget');
     frame.onload = () => setTimeout(() => mark(true), 200);
-    setTimeout(() => mark(false), 7000);      // no answer in 7s = treat as not delivered
+    setTimeout(async () => {
+      if(marked) return;
+      // primary service said nothing: push the same mail through the backup address
+      if(CONFIG.mailTo){
+        const ok = await deliverViaFormSubmit(payload, message, subject, planFile);
+        mark(ok);
+      } else {
+        mark(false);
+      }
+    }, 7000);
     wf.submit();
   } else {
     fetch(CONFIG.leadEndpoint, {
