@@ -1210,6 +1210,19 @@ html body .photo-view .pv-close{position:absolute;top:calc(14px + env(safe-area-
 
 .mc-sub.is-booked{color:var(--accent-d);letter-spacing:.06em}
 
+
+.qstat{font-size:9px;letter-spacing:.1em;text-transform:uppercase;border-radius:999px;padding:4px 9px;white-space:nowrap}
+.qstat.ok{background:#F1F7F2;color:#3F7A54}
+.qstat.wait{background:var(--accent-bg);color:var(--accent-d)}
+.qstat.bad{background:#FDF0F2;color:#B23B54}
+.qstat button{border:0;background:none;color:inherit;text-decoration:underline;font:inherit;cursor:pointer;padding:0 0 0 2px}
+
+
+/* shown only while the studio has not set its own form key */
+.demo-warn{display:block;margin:0 0 10px;padding:9px 12px;border-radius:10px;
+  border:1px dashed #E5C08A;background:#FFF6E6;color:#8A5A2B;font-size:10.5px;line-height:1.45}
+.demo-warn b{font-weight:600;color:#6F4720}
+
 </style>
 </head>
 <body>
@@ -1573,6 +1586,7 @@ if(state.lead && state.lead.delivery === 'sending') state.lead.delivery = 'local
 if(!(Number(state.h) > 0)) state.h = '9';
 state.planError = '';
 let planUrl = '';
+let planFile = null;                             // File object the customer uploaded
 
 // Sanitise ids saved by an older version of the calculator.
 const valid = (list, id) => !!byId(list, id);
@@ -2378,7 +2392,16 @@ function quoteCard(p){
   const date = state.lead && state.lead.at
     ? new Date(state.lead.at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
     : '';
-  return `<section class="qcard" aria-labelledby="qTitle">
+  const delivery = (state.lead && state.lead.delivery) || 'local';
+  const statusLine = delivery === 'sent'   ? '<span class="qstat ok">Sent to the studio</span>'
+    : delivery === 'sending'              ? '<span class="qstat wait">Sending to the studio\u2026</span>'
+    : delivery === 'failed'               ? '<span class="qstat bad">Could not reach the studio <button type="button" data-act="resend">Retry</button></span>'
+    : '';
+  const templateKey = 'd411e48a-e577-490c-993e-819d53082e91';
+  const demoWarn = (!CONFIG.leadAccessKey || CONFIG.leadAccessKey === templateKey)
+    ? `<p class="demo-warn"><b>Studio mail isn't configured yet.</b> This quote is going to the template's demo inbox, not to you. Paste your own Web3Forms key into <b>CONFIG.leadAccessKey</b> at the top of index.html and it starts arriving.</p>`
+    : '';
+  return `${demoWarn}<section class="qcard" aria-labelledby="qTitle">
     <div class="qc-head">
       <div class="qc-lead">
         <p class="qc-eyebrow">Quote ${esc(state.lead ? state.lead.id : '—')} · ${date}</p>
@@ -2387,6 +2410,7 @@ function quoteCard(p){
       </div>
       <div class="qc-book">${meetingCard()}</div>
       <div class="qc-actions">
+        ${statusLine}
         <div class="qc-total"><b>${inr(p.total)}</b><span>all-inclusive</span></div>
         <button class="qc-dl" type="button" data-act="dl">⬇ Download PDF</button>
       </div>
@@ -2832,6 +2856,7 @@ stage.addEventListener('click', e => {
   }
   else if(a === 'wa') whatsapp();
   else if(a === 'print') window.print();
+  else if(a === 'resend'){ sendQuote(true, { manual:true }); }
   else if(a === 'meet-toggle'){
     const card = act.closest('.mc');
     if(card){
@@ -2925,6 +2950,7 @@ document.addEventListener('change', e => {
   if(f.size > 10 * 1024 * 1024){ state.planError = 'Keep the plan under 10 MB.'; e.target.value = ''; draw(); return; }
   if(planUrl) URL.revokeObjectURL(planUrl);
   planUrl = URL.createObjectURL(f);
+  planFile = f;                                  // the real bytes, for the attachment
   state.plan = { name:f.name, type:f.type || (/\.pdf$/i.test(f.name) ? 'application/pdf' : 'image/jpeg'), size:f.size };
   state.planError = '';
   e.target.value = '';
@@ -2966,6 +2992,13 @@ stage.addEventListener('submit', e => {
   };
   saveLead(record);
   lead.delivery = 'pending';
+  // the quote as first created, so the studio can see what changed afterwards
+  lead.original = {
+    at: lead.at,
+    total: record.total,
+    lines: JSON.parse(JSON.stringify(record.lines || [])),
+    selections: JSON.parse(JSON.stringify(record.selections || {}))
+  };
   state.lead = lead;
   transition(() => { state.step = LAST; });
   scheduleAutoSend();
@@ -2993,6 +3026,32 @@ function scheduleAutoSend(){
     scheduleAutoSend();
   }, { passive: true });
 });
+/* the customer closes the tab or switches away: send what we have, without waiting */
+let leavingTimer = null;
+function flushQuoteMail(){
+  const lead = state.lead;
+  if(!lead || lead.delivery !== 'pending' || !CONFIG.leadEndpoint) return;
+  sendQuote(true, { auto:true, beacon:true });
+}
+document.addEventListener('visibilitychange', () => {
+  const lead = state.lead;
+  if(!lead || lead.delivery !== 'pending') return;
+  if(document.visibilityState === 'hidden'){
+    clearTimeout(leavingTimer);
+    leavingTimer = setTimeout(flushQuoteMail, 20000);   // hidden for 20s = they left
+  } else {
+    clearTimeout(leavingTimer);
+  }
+});
+window.addEventListener('pagehide', () => {
+  const lead = state.lead;
+  if(lead && lead.delivery === 'pending') flushQuoteMail();
+});
+window.addEventListener('beforeunload', () => {
+  const lead = state.lead;
+  if(lead && lead.delivery === 'pending') flushQuoteMail();
+});
+
 function queueResend(){
   const lead = state.lead;
   if(!lead || lead.delivery !== 'sent' || !CONFIG.leadEndpoint) return;
@@ -3003,6 +3062,7 @@ function queueResend(){
 }
 function sendQuote(withFeedback, opts){
   opts = opts || {};
+  let beaconPayload = null;
   if(!state.lead) return;
   clearTimeout(autoSendTimer);
   const lead = state.lead, p = price();
@@ -3013,6 +3073,47 @@ function sendQuote(withFeedback, opts){
   const budget = withFeedback && fb.touched && fb.budget != null ? fb.budget : null;
   const when = new Date(lead.at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
   const lines = p.lines.map((l, k) => '  ' + String(k + 1).padStart(2, '0') + '. ' + l.d + ' · ' + l.q + (l.u ? ' ' + l.u : '') + ' · ' + inr(l.a)).join('\n');
+  const snap = lead.original || null;
+  const pickLabels = {
+    layout:'Shape', board:'Board', finish:'Finish', glass:'Glass shutters', handle:'Handles',
+    counter:'Worktop', backsplash:'Backsplash', sinkMaterial:'Sink material', sinkType:'Bowl',
+    faucet:'Tap', hingeBrand:'Hinge brand', hingeFunction:'Hinge closing', lighting:'Lighting'
+  };
+  const nowSel = {
+    layout: state.layout, board: state.board, finish: state.finish, glass: !!state.glass,
+    handle: state.handle, counter: state.counter, backsplash: state.backsplash,
+    sinkMaterial: state.sinkMaterial, sinkType: state.sinkType, faucet: state.faucet,
+    hingeBrand: state.hingeBrand, hingeFunction: state.hingeFunction, lighting: state.lighting
+  };
+  const pretty = (k, v) => {
+    if(v === true) return 'yes';
+    if(v === false || v === undefined || v === null || v === '') return 'no';
+    const list = { layout: LAYOUTS, board: BOARDS, finish: FINISHES, handle: HANDLES, counter: COUNTERS,
+                   backsplash: BACKSPLASH, sinkMaterial: SINK_MATERIALS, sinkType: SINK_TYPES,
+                   faucet: FAUCETS, hingeBrand: HINGE_BRANDS, hingeFunction: HINGE_FUNCTIONS,
+                   lighting: LIGHTING }[k];
+    const hit = list && byId(list, v);
+    return hit ? hit.name : String(v);
+  };
+  const changes = [];
+  if(snap && snap.selections){
+    Object.keys(pickLabels).forEach(k => {
+      const before = snap.selections[k], after = nowSel[k];
+      if(String(before) !== String(after)){
+        changes.push('  ' + pickLabels[k] + ': ' + pretty(k, before) + ' → ' + pretty(k, after));
+      }
+    });
+    const beforeD = (snap.selections.drawers || {}), afterD = state.drawers || {};
+    Object.keys(afterD).forEach(k => {
+      const b = Number(beforeD[k]) || 0, a = Number(afterD[k]) || 0;
+      if(b !== a) changes.push('  ' + ((byId(DRAWERS, k) || {}).name || k) + ' drawers: ' + b + ' → ' + a);
+    });
+    if(String(snap.selections.l) !== String(state.l) || String(snap.selections.b) !== String(state.b) || String(snap.selections.h) !== String(state.h)){
+      changes.push('  Room: ' + snap.selections.l + ' × ' + snap.selections.b + ' × ' + snap.selections.h +
+                   ' → ' + state.l + ' × ' + state.b + ' × ' + state.h + ' ft');
+    }
+  }
+
   const message = [
     'HOMESIC · MODULAR KITCHEN QUOTE',
     'Ref ' + lead.id + '   ' + when,
@@ -3038,9 +3139,21 @@ function sendQuote(withFeedback, opts){
         + ' Â· ' + state.meet.time
       : null,
     '',
-    'PRICE',
+    'PRICE — FINAL QUOTE',
     lines,
     '  TOTAL ' + inr(p.total) + ' · all-inclusive, including 5% design',
+
+    snap ? 'CHANGED SINCE THE QUOTE WAS CREATED' : null,
+    snap ? (changes.length ? changes.join('\n') : '  Nothing changed — the customer kept the original quote') : null,
+    snap ? '  Total: ' + inr(snap.total) + ' → ' + inr(p.total)
+         + (p.total === snap.total ? ' (unchanged)' : ' (' + (p.total > snap.total ? '+' : '−') + inr(Math.abs(p.total - snap.total)) + ')') : null,
+
+    snap ? 'PRICE — ORIGINAL QUOTE (as first created)' : null,
+    snap ? snap.lines.map((l, k) => '  ' + String(k + 1).padStart(2, '0') + '. ' + l.d + ' · ' + l.q + (l.u ? ' ' + l.u : '') + ' · ' + inr(l.a)).join('\n') : null,
+    snap ? '  TOTAL ' + inr(snap.total) + ' · at ' + new Date(snap.at).toLocaleString('en-IN') : null,
+
+    planFile ? 'UPLOADED FILE (attached)' : (state.plan ? 'UPLOADED FILE (metadata only — not attached)' : null),
+    state.plan ? '  ' + state.plan.name + ' · ' + Math.round(state.plan.size / 1024) + ' KB' : null,
     '',
     'CUSTOMER FEEDBACK',
     withFeedback
@@ -3072,6 +3185,8 @@ function sendQuote(withFeedback, opts){
     message
   };
 
+  window.__lastQuoteMail = message;      // handy when checking what the studio receives
+  window.__lastQuotePayload = payload;
   if(withFeedback) lead.feedbackAt = new Date().toISOString();
   lead.delivery = 'sending'; save();
   if(state.step === LAST) draw();
@@ -3086,6 +3201,22 @@ function sendQuote(withFeedback, opts){
 
   if(!CONFIG.leadEndpoint){ done(true); return; }
 
+  // leaving the page: a beacon survives the unload, an iframe form often does not
+  if(opts.beacon){
+    try {
+      const fd = new FormData();
+      Object.keys(payload).forEach(k => {
+        const v = payload[k];
+        if(v === undefined || v === null || v === '') return;
+        fd.append(k, String(v));
+      });
+      if(planFile) fd.append('attachment', planFile, planFile.name);
+      navigator.sendBeacon(CONFIG.leadEndpoint, fd);
+      done(true);
+    } catch(err){ done(false); }
+    return;
+  }
+
   if(/web3forms\.com/i.test(CONFIG.leadEndpoint)){
     const wf = $('wfForm');
     wf.action = CONFIG.leadEndpoint;
@@ -3097,11 +3228,22 @@ function sendQuote(withFeedback, opts){
       wf.appendChild(el);
     };
     Object.keys(payload).forEach(k => add(k, payload[k]));
+    // the uploaded floor plan rides along as a real attachment
+    if(planFile){
+      try {
+        const fi = document.createElement('input');
+        fi.type = 'file'; fi.name = 'attachment';
+        const dt = new DataTransfer();
+        dt.items.add(planFile);
+        fi.files = dt.files;
+        wf.appendChild(fi);
+      } catch(err){ /* older browsers: metadata still goes in the text */ }
+    }
     let marked = false;
-    const mark = () => { if(marked) return; marked = true; done(true); };
+    const mark = ok => { if(marked) return; marked = true; done(ok); };
     const frame = $('wfTarget');
-    frame.onload = () => setTimeout(mark, 250);
-    setTimeout(mark, 2500);
+    frame.onload = () => setTimeout(() => mark(true), 200);
+    setTimeout(() => mark(false), 7000);      // no answer in 7s = treat as not delivered
     wf.submit();
   } else {
     fetch(CONFIG.leadEndpoint, {
