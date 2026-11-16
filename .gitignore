@@ -16,3 +16,4 @@ desktop.ini
 # chrome profiles + scratch from the screenshot helpers
 tools/prof*/
 tools/pitch/
+dist/
